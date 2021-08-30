@@ -1,0 +1,22 @@
+---
+version: '3'
+
+services:
+  aws-tools:
+    image: entechlog/aws-tools${AWS_TOOLS_VERSION_TAG}
+    container_name: aws-tools
+    build: ./docker/
+    command: 
+      - bash 
+      - -c 
+      - |
+        echo "Launching aws-tools"
+        sleep infinity
+    restart: unless-stopped
+    volumes:
+      - //var/run/docker.sock:/var/run/docker.sock:rw
+      - type: bind
+        source: /C
+        target: /C
+    environment:
+      - TZ=Etc/GMT
