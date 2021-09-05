@@ -8,7 +8,7 @@ COPY requirements.txt ./
 # Install Python Requirements
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends git && \
+    apt-get install -y --no-install-recommends git curl && \
     apt-get purge -y --auto-remove
 
 RUN pip install --upgrade pip
