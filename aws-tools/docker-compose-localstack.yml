@@ -1,0 +1,28 @@
+---
+version: '3'
+
+services:
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    ports:
+      - "4566-4599:4566-4599"
+      - "9000:9000"
+    environment:
+      - SERVICES=s3
+      - EDGE_BIND_HOST=0.0.0.0
+      - DEFAULT_REGION=us-east-1
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - PORT_WEB_UI=9000
+      - LAMBDA_EXECUTOR=local
+      - START_WEB=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_ACCESS_KEY_ID=${LOCALSTACK_AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${LOCALSTACK_AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${LOCALSTACK_AWS_DEFAULT_REGION}
+    volumes:
+      - ./tmp/localstack:/tmp/localstack   
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
