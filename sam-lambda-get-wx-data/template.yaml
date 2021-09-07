@@ -1,0 +1,153 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-lambda-get-wx-data
+
+  Sample SAM Template for sam-lambda-get-wx-data
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 30
+
+Parameters:
+  paramIAMUserARN:
+    Description: AWS Account IAM User ARN
+    Default: arn:aws:iam::12345:user/12345
+    Type: String
+  paramRegion:
+    Type: String
+    Default: us-east-1
+  paramEnvironment:
+    Type: String
+    Description: Which environment do you want to deploy ? (local,dev,stage, or prod)
+    AllowedValues:
+      - local
+      - dev
+      - stage
+      - prod
+    Default: local
+
+Resources:
+  GetWeatherDataFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: get-wx-data/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref GetWeatherDataBucket
+      Policies:
+        - AWSLambdaExecute
+        - AWSLambdaBasicExecutionRole
+      Events:
+        GetWeatherSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 minute)
+
+  GetWeatherDataBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub ${AWS::StackName}
+
+  GetWeatherDataBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref GetWeatherDataBucket
+      PolicyDocument:
+        Statement:
+          - Action: 
+              - s3:GetObject
+              - s3:GetObjectVersion
+            Effect: Allow
+            Principal: "*"
+            Resource: 
+              - !Sub arn:aws:s3:::${GetWeatherDataBucket}/*
+
+  GetWeatherDataBucketUser:
+    Type: AWS::IAM::User
+    Properties:
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-bucket-access
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource:
+                  - !Sub arn:aws:s3:::${GetWeatherDataBucket}
+                  - !Sub arn:aws:s3:::${GetWeatherDataBucket}/*
+      UserName: !Sub ${AWS::StackName}-s3-user
+
+  GetWeatherDataBucketAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref GetWeatherDataBucketUser
+
+  GetWeatherDataBucketRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - Ref: paramIAMUserARN
+            Action:
+              - "sts:AssumeRole"
+            Condition:
+              StringEquals:
+                sts:ExternalId: "12345"
+      RoleName: !Sub ${AWS::StackName}-readonly
+
+  GetWeatherDataBucketRolePermission:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub ${AWS::StackName}-readonly
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowGet
+            Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+            Effect: Allow
+            Resource: !Sub arn:aws:s3:::${GetWeatherDataBucket}/*
+          - Sid: AllowList
+            Action:
+              - s3:ListBucket
+            Effect: Allow
+            Resource: !Sub arn:aws:s3:::${GetWeatherDataBucket}
+      Roles:
+        - !Ref GetWeatherDataBucketRole
+
+Outputs:
+  GetWeatherDataFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt GetWeatherDataFunction.Arn
+  GetWeatherDataBucket:
+    Description: "S3 bucket for uploads"
+    Value: !Ref "GetWeatherDataBucket"
+  GetWeatherDataBucketPolicy:
+    Description: "S3 bucket policy"
+    Value: !Ref "GetWeatherDataBucketPolicy"
+  GetWeatherDataBucketUser:
+    Description: "IAM user for lambda to write the data to s3"
+    Value: !GetAtt GetWeatherDataBucketUser.Arn
+  GetWeatherDataBucketAccessKeyID:
+    Description: "IAM user AccessKey for lambda to write the data to s3"
+    Value: !Ref GetWeatherDataBucketAccessKey
+  GetWeatherDataBuckeSecretAccessKey:
+    Description: "IAM user SecretAccessKey for lambda to write the data to s3"
+    Value: !GetAtt GetWeatherDataBucketAccessKey.SecretAccessKey
+  GetWeatherDataBucketRole:
+    Description: "IAM role for snowflake to read data from s3"
+    Value: !GetAtt GetWeatherDataBucketRole.Arn
+  GetWeatherDataBucketRolePermission:
+    Description: "IAM policy for snowflake to read data from s3"
+    Value: !Ref GetWeatherDataBucketRolePermission
