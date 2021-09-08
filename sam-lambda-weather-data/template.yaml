@@ -12,12 +12,9 @@ Globals:
 
 Parameters:
   paramIAMUserARN:
-    Description: AWS Account IAM User ARN
-    Default: arn:aws:iam::12345:user/12345
+    Description: Snowflake IAM User ARN (STORAGE_AWS_IAM_USER_ARN) from DESC INTEGRATION
+    Default: arn:aws:iam::111111111111:user/user-name1
     Type: String
-  paramRegion:
-    Type: String
-    Default: us-east-1
   paramEnvironment:
     Type: String
     Description: Which environment do you want to deploy ? (local,dev,stage, or prod)
