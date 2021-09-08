@@ -1,4 +1,4 @@
-# sam-lambda-get-wx-data
+# sam-lambda-weather-data
 
 ## Overview
 Demo for invoking api using AWS Lambda, writing to s3 and loading to snowflake using snowpipe
@@ -15,9 +15,9 @@ Demo for invoking api using AWS Lambda, writing to s3 and loading to snowflake u
   ```
 - SAM 
   ```bash
-  sam deploy --stack-name sam-lambda-get-wx-data --s3-bucket <sam-bucket-name> --capabilities CAPABILITY_NAMED_IAM --parameter-overrides paramIAMUserARN="arn:aws:iam::<san=m-user>"
+  sam deploy --stack-name sam-lambda-weather-data --s3-bucket <sam-bucket-name> --capabilities CAPABILITY_NAMED_IAM --parameter-overrides paramIAMUserARN="arn:aws:iam::<san=m-user>"
   ```
 - Delete the stack
   ```bash
-  aws cloudformation delete-stack --stack-name sam-lambda-get-wx-data
+  aws cloudformation delete-stack --stack-name sam-lambda-weather-data
   ```

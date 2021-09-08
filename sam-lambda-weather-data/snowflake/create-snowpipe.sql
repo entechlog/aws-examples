@@ -12,7 +12,7 @@ TYPE = EXTERNAL_STAGE
 STORAGE_PROVIDER = S3
 ENABLED = TRUE
 STORAGE_AWS_ROLE_ARN = 'iam-role'
-STORAGE_ALLOWED_LOCATIONS = ('s3://sam-lambda-get-wx-data/');
+STORAGE_ALLOWED_LOCATIONS = ('s3://sam-lambda-weather-data/');
 
 -- Grant access to integration
 GRANT ALL ON INTEGRATION WEATHER_S3_INT TO SYSADMIN;
@@ -41,7 +41,7 @@ SHOW FILE FORMATS;
 -- Create state for incoming files. Update `URL` with s3 bucket details
 CREATE OR REPLACE STAGE DEMO_DB.SNOWPIPE.WEATHER_S3_STG
 STORAGE_INTEGRATION = WEATHER_S3_INT
-URL = 's3://sam-lambda-get-wx-data/'
+URL = 's3://sam-lambda-weather-data/'
 FILE_FORMAT = WEATHER_FILE_FORMAT;
 
 -- Verify Stage
