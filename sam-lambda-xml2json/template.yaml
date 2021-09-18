@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-lambda-xml2json
+
+  Sample SAM Template for sam-lambda-xml2json
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 60
+
+Parameters:
+  paramEnvironment:
+    Type: String
+    Description: Which environment do you want to deploy ? (local,dev,stage, or prod)
+    AllowedValues:
+      - local
+      - dev
+      - stage
+      - prod
+    Default: local
+
+Resources:
+  xml2jsonFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: xml2json/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Environment:
+        Variables:
+          ENVIRONMENT_CODE: !Ref paramEnvironment
+      Policies:
+        - AWSLambdaExecute
+        - AWSLambdaBasicExecutionRole
+      Events:
+        CreateJsonEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref xml2jsonBucket
+            Events: s3:ObjectCreated:*
+            Filter: 
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: xml
+
+  xml2jsonBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub ${AWS::StackName}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: true
+
+  xml2jsonBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref xml2jsonBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+            Sid: ReadAccess
+            Effect: Allow
+            Principal: "*"
+            Resource:
+              - !Sub arn:aws:s3:::${xml2jsonBucket}/*
+          - Action:
+              - s3:PutObject
+            Sid: WriteAccess
+            Effect: Allow
+            Principal:
+              AWS:
+                - !GetAtt xml2jsonFunctionRole.Arn
+            Resource:
+              - !Sub arn:aws:s3:::${xml2jsonBucket}/*
+
+Outputs:
+  xml2jsonFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt xml2jsonFunction.Arn
+  xml2jsonFunctionRole:
+    Description: "Lambda Function Role ARN"
+    Value: !GetAtt xml2jsonFunctionRole.Arn
+  xml2jsonBucket:
+    Description: "S3 bucket for uploads"
+    Value: !Ref "xml2jsonBucket"
+  xml2jsonBucketPolicy:
+    Description: "S3 bucket policy"
+    Value: !Ref "xml2jsonBucketPolicy"
