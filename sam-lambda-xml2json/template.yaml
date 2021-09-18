@@ -146,7 +146,7 @@ Resources:
                 Action:
                   - s3:Get*
                   - s3:List*
-                Resource: !Sub arn:aws:s3:::${xml2jsonBucket}/*
+                Resource: "*"
 
   RedshiftSecurityGroup:
     Condition: CreateRedshift
@@ -178,12 +178,27 @@ Outputs:
 
   RedshiftAddress:
     Description: "Redshift Endpoint"
-    Value: !GetAtt RedshiftCluster.Endpoint.Address
+    Value:
+      !If [
+        CreateRedshift,
+        !GetAtt RedshiftCluster.Endpoint.Address,
+        "No Redshift cluster created",
+      ]
 
   RedshiftPort:
     Description: "Redshift Port"
-    Value: !GetAtt RedshiftCluster.Endpoint.Port
+    Value:
+      !If [
+        CreateRedshift,
+        !GetAtt RedshiftCluster.Endpoint.Port,
+        "No Redshift cluster created",
+      ]
 
   RedshiftRole:
     Description: "Redshift Role"
-    Value: !Ref RedshiftRole
+    Value:
+      !If [
+        CreateRedshift,
+        !GetAtt RedshiftRole.Arn,
+        "No Redshift cluster created",
+      ]
