@@ -39,7 +39,7 @@ def xml_to_json(event):
         key = unquote_plus(record['s3']['object']['key'])
 
         logger.info('Bucket Name ~ {}'.format(bucket_name))
-        logger.info('S3 Record Key ~ {}'.format(key))
+        logger.info('Source S3 Record Key ~ {}'.format(key))
 
         # Temporarily download the xml file for processing
         tmpkey = key.replace('/', '')
@@ -49,7 +49,7 @@ def xml_to_json(event):
         try:
             bucket.download_file(key, download_path)
             # Create the output file name
-            s3_path = key.replace('.xml', '.json')
+            s3_path = key.replace('xml', 'json')
 
             # Open the xml, covert to JSON
             with open(download_path) as xml_file:
@@ -59,6 +59,7 @@ def xml_to_json(event):
                 try:
                     s3.Bucket(bucket_name).put_object(Key=s3_path, Body=(
                         bytes(json.dumps(my_dict).encode('UTF-8'))))
+                    logger.info('Target S3 Record Key ~ {}'.format(s3_path))
                 except ClientError as e:
                     logging.error(e)
 
@@ -68,8 +69,9 @@ def xml_to_json(event):
                     'The object {} does not exist in bucket {}'.format(key, bucket_name))
             else:
                 raise
-    
+
     return None
+
 
 def lambda_handler(event, context):
     """
