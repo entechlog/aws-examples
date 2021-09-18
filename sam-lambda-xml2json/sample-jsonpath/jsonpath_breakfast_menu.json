@@ -1,0 +1,7 @@
+{
+    "jsonpaths": [
+        "$['breakfast_menu']['food'][0]['name']",
+        "$['breakfast_menu']['food'][0]['price']",
+        "$['breakfast_menu']['food'][0]['description']"
+    ]
+}
