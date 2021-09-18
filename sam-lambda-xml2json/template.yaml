@@ -11,42 +11,15 @@ Globals:
     Timeout: 60
 
 Parameters:
-  ParamEnvironment:
+  paramEnvironment:
     Type: String
-    Description: Target environment (local,dev,stage, or prod)
+    Description: Which environment do you want to deploy ? (local,dev,stage, or prod)
     AllowedValues:
       - local
       - dev
       - stage
       - prod
     Default: local
-
-  ParamCreateRedshift:
-    Type: String
-    Default: "false"
-    AllowedValues:
-      - "true"
-      - "false"
-    Description: Whether to create Redshift cluster
-
-  ParamRedshiftPassword:
-    Description: Password for Redshift cluster
-    Type: String
-    NoEcho: "true"
-
-Conditions:
-  IsTargetAWS: !Not
-    - !Equals
-      - !Ref ParamEnvironment
-      - "local"
-
-  IsRedshift: !Equals
-    - Ref: ParamCreateRedshift
-    - "true"
-
-  CreateRedshift: !And
-    - !Condition IsTargetAWS
-    - !Condition IsRedshift
 
 Resources:
   xml2jsonFunction:
@@ -57,7 +30,7 @@ Resources:
       Runtime: python3.9
       Environment:
         Variables:
-          ENVIRONMENT_CODE: !Ref ParamEnvironment
+          ENVIRONMENT_CODE: !Ref paramEnvironment
       Policies:
         - AWSLambdaExecute
         - AWSLambdaBasicExecutionRole
@@ -67,7 +40,7 @@ Resources:
           Properties:
             Bucket: !Ref xml2jsonBucket
             Events: s3:ObjectCreated:*
-            Filter:
+            Filter: 
               S3Key:
                 Rules:
                   - Name: suffix
@@ -108,82 +81,16 @@ Resources:
             Resource:
               - !Sub arn:aws:s3:::${xml2jsonBucket}/*
 
-  RedshiftCluster:
-    Type: AWS::Redshift::Cluster
-    Condition: CreateRedshift
-    Properties:
-      ClusterType: single-node
-      NodeType: dc2.large
-      DBName: dev
-      MasterUsername: awsuser
-      MasterUserPassword: !Ref ParamRedshiftPassword
-      PubliclyAccessible: false
-      VpcSecurityGroupIds:
-        - !GetAtt RedshiftSecurityGroup.GroupId
-      Port: 5439
-      IamRoles:
-        - !GetAtt RedshiftRole.Arn
-
-  RedshiftRole:
-    Type: AWS::IAM::Role
-    Condition: CreateRedshift
-    Properties:
-      RoleName: !Sub ${AWS::StackName}-redshift
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: redshift.amazonaws.com
-            Action: sts:AssumeRole
-      Path: /
-      Policies:
-        - PolicyName: !Sub ${AWS::StackName}-redshift
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:Get*
-                  - s3:List*
-                Resource: !Sub arn:aws:s3:::${xml2jsonBucket}/*
-
-  RedshiftSecurityGroup:
-    Condition: CreateRedshift
-    Properties:
-      GroupDescription: Security group for Redshift
-      SecurityGroupIngress:
-        - FromPort: 5439
-          ToPort: 5439
-          IpProtocol: tcp
-          CidrIp: 0.0.0.0/0
-    Type: AWS::EC2::SecurityGroup
-
 Outputs:
   xml2jsonFunction:
     Description: "Lambda Function ARN"
     Value: !GetAtt xml2jsonFunction.Arn
-
   xml2jsonFunctionRole:
     Description: "Lambda Function Role ARN"
     Value: !GetAtt xml2jsonFunctionRole.Arn
-
   xml2jsonBucket:
     Description: "S3 bucket for uploads"
     Value: !Ref "xml2jsonBucket"
-
   xml2jsonBucketPolicy:
     Description: "S3 bucket policy"
     Value: !Ref "xml2jsonBucketPolicy"
-
-  RedshiftAddress:
-    Description: "Redshift Endpoint"
-    Value: !GetAtt RedshiftCluster.Endpoint.Address
-
-  RedshiftPort:
-    Description: "Redshift Port"
-    Value: !GetAtt RedshiftCluster.Endpoint.Port
-
-  RedshiftRole:
-    Description: "Redshift Role"
-    Value: !Ref RedshiftRole
