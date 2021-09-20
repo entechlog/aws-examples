@@ -54,7 +54,10 @@ services:
       - AWS_SECRET_ACCESS_KEY=${LOCALSTACK_AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${LOCALSTACK_AWS_DEFAULT_REGION}
     volumes:
-      - ./tmp/localstack:/tmp/localstack   
+      - ./tmp/localstack:/tmp/localstack
+      - type: bind
+        source: /C
+        target: /C
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
