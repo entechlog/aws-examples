@@ -6,6 +6,8 @@ module "msk" {
   private_subnet_id = module.vpc.private_subnet_id
   security_group_id = module.vpc.security_group
 
+  kafka_unauthenticated_access_enabled = var.kafka_unauthenticated_access_enabled
+
   mongodbdb_uri                    = var.mongodbdb_uri
   mongodb_username                 = var.mongodb_username
   mongodbdb_password               = var.mongodbdb_password

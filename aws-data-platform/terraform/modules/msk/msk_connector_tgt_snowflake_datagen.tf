@@ -47,7 +47,7 @@ resource "aws_mskconnect_connector" "tgt_snowflake_datagen" {
 
   kafka_cluster {
     apache_kafka_cluster {
-      bootstrap_servers = aws_msk_cluster.main.bootstrap_brokers_tls
+      bootstrap_servers = aws_msk_cluster.main.bootstrap_brokers_sasl_iam
 
       vpc {
         security_groups = [var.security_group_id]
@@ -57,7 +57,7 @@ resource "aws_mskconnect_connector" "tgt_snowflake_datagen" {
   }
 
   kafka_cluster_client_authentication {
-    authentication_type = "NONE"
+    authentication_type = "IAM"
   }
 
   kafka_cluster_encryption_in_transit {
@@ -71,7 +71,7 @@ resource "aws_mskconnect_connector" "tgt_snowflake_datagen" {
     }
   }
 
-  service_execution_role_arn = "arn:aws:iam::582805303120:role/dev-kakfa-service-role"
+  service_execution_role_arn = aws_iam_role.msk_connect.arn
 
   log_delivery {
     worker_log_delivery {
