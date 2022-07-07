@@ -30,9 +30,17 @@ resource "aws_s3_bucket_public_access_block" "s3_bucket_public_access_block" {
 }
 
 resource "aws_s3_bucket_object" "dags" {
-  for_each = fileset("dags/", "*.py")
+  for_each = fileset("mwaa/dags/", "*.py")
   bucket   = aws_s3_bucket.s3_bucket.id
   key      = "dags/${each.value}"
-  source   = "dags/${each.value}"
-  etag     = filemd5("dags/${each.value}")
+  source   = "mwaa/dags/${each.value}"
+  etag     = filemd5("mwaa/dags/${each.value}")
+}
+
+resource "aws_s3_bucket_object" "requirements" {
+  for_each = fileset("mwaa/requirements/", "*.txt")
+  bucket   = aws_s3_bucket.s3_bucket.id
+  key      = "requirements/${each.value}"
+  source   = "mwaa/requirements/${each.value}"
+  etag     = filemd5("mwaa/requirements/${each.value}")
 }

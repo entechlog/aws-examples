@@ -12,7 +12,7 @@ resource "aws_s3_bucket_acl" "kafka_plugin_acl" {
 resource "aws_s3_object" "mongodb" {
   bucket = aws_s3_bucket.kafka_plugin.id
   key    = "connect/plugins/mongo-kafka-connect-1.7.0-all.jar"
-  source = "./connect/plugins/mongo-kafka-connect-1.7.0-all.jar"
+  source = "./msk/connect/plugins/mongo-kafka-connect-1.7.0-all.jar"
 }
 
 resource "aws_mskconnect_custom_plugin" "mongodb" {
@@ -32,7 +32,7 @@ resource "aws_mskconnect_custom_plugin" "mongodb" {
 resource "aws_s3_object" "datagen" {
   bucket = aws_s3_bucket.kafka_plugin.id
   key    = "connect/plugins/confluentinc-kafka-connect-datagen-0.5.3.zip"
-  source = "./connect/plugins/confluentinc-kafka-connect-datagen-0.5.3.zip"
+  source = "./msk/connect/plugins/confluentinc-kafka-connect-datagen-0.5.3.zip"
 }
 
 resource "aws_mskconnect_custom_plugin" "datagen" {
@@ -52,7 +52,7 @@ resource "aws_mskconnect_custom_plugin" "datagen" {
 resource "aws_s3_object" "snowflake" {
   bucket = aws_s3_bucket.kafka_plugin.id
   key    = "connect/plugins/snowflake-kafka-connector-1.8.0.zip"
-  source = "./connect/plugins/snowflake-kafka-connector-1.8.0.zip"
+  source = "./msk/connect/plugins/snowflake-kafka-connector-1.8.0.zip"
 }
 
 resource "aws_mskconnect_custom_plugin" "snowflake" {

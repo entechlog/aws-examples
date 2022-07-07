@@ -47,7 +47,12 @@ Terraform template to create a simple data platform with VPC, Subnets, Airflow(M
 - https://github.com/claudiobizzotto/aws-mwaa-terraform-private
 - https://github.com/claudiobizzotto/aws-mwaa-terraform
 - https://docs.aws.amazon.com/mwaa/latest/userguide/access-policies.html
-
+- https://itnext.io/amazon-managed-workflows-for-apache-airflow-configuration-77db7fd633c5
+- https://dev.to/aws/working-with-permissions-in-amazon-managed-workflows-for-apache-airflow-2g5l
+- https://docs.aws.amazon.com/mwaa/latest/userguide/configuring-env-variables.html
+- https://stackoverflow.com/questions/67788083/mwaa-airflow-2-0-in-aws-snowflake-connection-not-showing
+- https://docs.aws.amazon.com/mwaa/latest/userguide/connections-secrets-manager.html
+- https://catalog.us-east-1.prod.workshops.aws/workshops/795e88bb-17e2-498f-82d1-2104f4824168/en-US/workshop-2-2-2/setup/s3
 
 # Pending
 ## MSK

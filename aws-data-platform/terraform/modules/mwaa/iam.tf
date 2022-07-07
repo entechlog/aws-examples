@@ -74,7 +74,7 @@ data "aws_iam_policy_document" "iam_policy_document" {
       "logs:DescribeLogGroups"
     ]
     effect    = "Allow"
-    resources = ["arn:aws:logs:${var.aws_region}:${local.account_id}:log-group:airflow-${var.project_code}*"]
+    resources = ["arn:aws:logs:${var.aws_region}:${local.account_id}:log-group:airflow-${lower(var.env_code)}-${lower(var.project_code)}-mwaa*"]
   }
 
   statement {
@@ -119,7 +119,7 @@ data "aws_iam_policy_document" "iam_policy_document" {
 }
 
 resource "aws_iam_policy" "iam_policy" {
-  name   = var.project_code
+  name   = "${lower(var.env_code)}-${lower(var.project_code)}-mwaa"
   path   = "/"
   policy = data.aws_iam_policy_document.iam_policy_document.json
 }

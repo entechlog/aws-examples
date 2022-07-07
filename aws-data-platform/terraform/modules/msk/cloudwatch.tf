@@ -1,5 +1,6 @@
 resource "aws_cloudwatch_log_group" "msk" {
-  name = "/msk/kafka-cluster/${lower(var.env_code)}-${lower(var.project_code)}-msk"
+  name              = "/msk/cluster/${lower(var.env_code)}-${lower(var.project_code)}-msk"
+  retention_in_days = 90
 
   tags = merge(local.tags, {
     Name        = "${lower(var.env_code)}-${lower(var.project_code)}-msk"
@@ -8,7 +9,8 @@ resource "aws_cloudwatch_log_group" "msk" {
 }
 
 resource "aws_cloudwatch_log_group" "msk_connect" {
-  name = "/msk/kafka-connect/${lower(var.env_code)}-${lower(var.project_code)}-msk"
+  name              = "/msk/connect/${lower(var.env_code)}-${lower(var.project_code)}-msk"
+  retention_in_days = 90
 
   tags = merge(local.tags, {
     Name        = "${lower(var.env_code)}-${lower(var.project_code)}-msk"
