@@ -57,13 +57,18 @@ Terraform template to create a simple data platform with VPC, Subnets, Airflow(M
 # Pending
 ## MSK
 - Fix the MSK service_execution_role_arn ✔️
-- Create an EC2 instance
 - Disable MSK unauthenticated access and test connectors ✔️
+- Create an EC2 instance to test scram auth
 - Install Kafka UI
 
 ## MWAA
-- Role for MWAA users 
-- Custom Image
-- Variables
-- Snowflake connection
-- Cloud watch log group
+- Role for MWAA users to grant access
+  - https://docs.aws.amazon.com/mwaa/latest/userguide/access-policies.html
+- Custom Image ✔️
+  - Done using requirements
+- Variables ✔️
+  - https://docs.aws.amazon.com/mwaa/latest/userguide/samples-variables-import.html 
+- Snowflake connection ✔️
+  - https://docs.aws.amazon.com/mwaa/latest/userguide/connections-secrets-manager.html
+- Cloud watch log group ✔️
+  - Will be same as cluster name, No option to customize

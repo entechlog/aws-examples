@@ -44,3 +44,23 @@ resource "aws_s3_bucket_object" "requirements" {
   source   = "mwaa/requirements/${each.value}"
   etag     = filemd5("mwaa/requirements/${each.value}")
 }
+
+resource "aws_s3_bucket_object" "variables" {
+  for_each = fileset("mwaa/variables/", "*.json")
+  bucket   = aws_s3_bucket.s3_bucket.id
+  key      = "variables/${each.value}"
+  source   = "mwaa/variables/${each.value}"
+  etag     = filemd5("mwaa/variables/${each.value}")
+}
+data "archive_file" "plugins" {
+  type        = "zip"
+  source_dir  = "mwaa/plugins/"
+  output_path = "mwaa/plugins.zip"
+  excludes    = ["mwaa/plugins/.gitkeep"]
+}
+
+resource "aws_s3_bucket_object" "plugins" {
+  bucket = aws_s3_bucket.s3_bucket.id
+  key    = "mwaa/plugins.zip"
+  source = "mwaa/plugins.zip"
+}

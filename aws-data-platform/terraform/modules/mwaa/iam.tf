@@ -25,11 +25,17 @@ resource "aws_iam_role" "iam_role" {
 data "aws_iam_policy_document" "iam_policy_document" {
   statement {
     sid       = ""
-    actions   = ["airflow:PublishMetrics"]
+    actions   = ["secretsmanager:ListSecrets"]
     effect    = "Allow"
-    resources = ["arn:aws:airflow:${var.aws_region}:${local.account_id}:environment/${var.project_code}"]
+    resources = ["*"]
   }
 
+  statement {
+    sid       = ""
+    actions   = ["secretsmanager:GetResourcePolicy", "secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret", "secretsmanager:ListSecretVersionIds"]
+    effect    = "Allow"
+    resources = ["arn:aws:secretsmanager:*"]
+  }
   statement {
     sid     = ""
     actions = ["s3:ListAllMyBuckets"]

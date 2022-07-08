@@ -9,7 +9,8 @@ resource "aws_mwaa_environment" "mwaa_environment" {
   schedulers                    = var.mwaa_schedulers
   webserver_access_mode         = "PUBLIC_ONLY"
   environment_class             = "mw1.small"
-  requirements_s3_path          = "requirements.txt"
+  requirements_s3_path          = "requirements/requirements.txt"
+  plugins_s3_path               = "mwaa/plugins.zip"
 
   network_configuration {
     security_group_ids = [var.security_group_id]

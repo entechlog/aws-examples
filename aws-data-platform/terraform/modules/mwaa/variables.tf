@@ -54,3 +54,9 @@ variable "mwaa_airflow_configuration_options" {
   description = "additional airflow configuration options"
   default     = { "core.lazy_load_plugins" = "False" }
 }
+
+# Connections
+variable "snowflake_auth_configs" {
+  default = "snowflake://myusername:mypassword@myaccount.us-east-1.snowflakecomputing.com:1234/myschema?account=myaccount&warehouse=mywarehouse&database=mydatabase&region=us-east-1"
+  sensitive = true
+}
