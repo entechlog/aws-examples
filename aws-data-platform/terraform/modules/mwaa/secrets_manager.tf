@@ -1,11 +1,11 @@
-resource "aws_secretsmanager_secret" "env_code" {
-  name = "airflow/variables/env_code"
-}
+#resource "aws_secretsmanager_secret" "env_code" {
+#  name = "airflow/variables/env_code"
+#}
 
-resource "aws_secretsmanager_secret_version" "env_code" {
-  secret_id     = aws_secretsmanager_secret.env_code.id
-  secret_string = lower(var.env_code)
-}
+#resource "aws_secretsmanager_secret_version" "env_code" {
+#  secret_id     = aws_secretsmanager_secret.env_code.id
+#  secret_string = lower(var.env_code)
+#}
 
 resource "aws_secretsmanager_secret" "snowflake_conn" {
   name = "airflow/connections/snowflake_conn"

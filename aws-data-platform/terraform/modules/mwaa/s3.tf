@@ -30,37 +30,37 @@ resource "aws_s3_bucket_public_access_block" "s3_bucket_public_access_block" {
 }
 
 resource "aws_s3_bucket_object" "dags" {
-  for_each = fileset("mwaa/dags/", "*.py")
+  for_each = fileset("uploads/mwaa/dags/", "*.py")
   bucket   = aws_s3_bucket.s3_bucket.id
   key      = "dags/${each.value}"
-  source   = "mwaa/dags/${each.value}"
-  etag     = filemd5("mwaa/dags/${each.value}")
+  source   = "uploads/mwaa/dags/${each.value}"
+  etag     = filemd5("uploads/mwaa/dags/${each.value}")
 }
 
 resource "aws_s3_bucket_object" "requirements" {
-  for_each = fileset("mwaa/requirements/", "*.txt")
+  for_each = fileset("uploads/mwaa/requirements/", "*.txt")
   bucket   = aws_s3_bucket.s3_bucket.id
   key      = "requirements/${each.value}"
-  source   = "mwaa/requirements/${each.value}"
-  etag     = filemd5("mwaa/requirements/${each.value}")
+  source   = "uploads/mwaa/requirements/${each.value}"
+  etag     = filemd5("uploads/mwaa/requirements/${each.value}")
 }
 
 resource "aws_s3_bucket_object" "variables" {
-  for_each = fileset("mwaa/variables/", "*.json")
+  for_each = fileset("uploads/mwaa/variables/", "*.json")
   bucket   = aws_s3_bucket.s3_bucket.id
   key      = "variables/${each.value}"
-  source   = "mwaa/variables/${each.value}"
-  etag     = filemd5("mwaa/variables/${each.value}")
+  source   = "uploads/mwaa/variables/${each.value}"
+  etag     = filemd5("uploads/mwaa/variables/${each.value}")
 }
 data "archive_file" "plugins" {
   type        = "zip"
-  source_dir  = "mwaa/plugins/"
-  output_path = "mwaa/plugins.zip"
-  excludes    = ["mwaa/plugins/.gitkeep"]
+  source_dir  = "uploads/mwaa/plugins/"
+  output_path = "uploads/mwaa/plugins.zip"
+  excludes    = ["uploads/mwaa/plugins/.gitkeep"]
 }
 
 resource "aws_s3_bucket_object" "plugins" {
   bucket = aws_s3_bucket.s3_bucket.id
   key    = "mwaa/plugins.zip"
-  source = "mwaa/plugins.zip"
+  source = "uploads/mwaa/plugins.zip"
 }

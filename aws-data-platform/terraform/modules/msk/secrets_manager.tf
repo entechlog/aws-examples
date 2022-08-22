@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "msk" {
-  name       = "AmazonMSK_${lower(var.env_code)}_${lower(var.project_code)}_kafka_users"
+  name       = "AmazonMSK_${lower(var.env_code)}_${lower(var.project_code)}_kafka_usr"
   kms_key_id = aws_kms_key.kms.key_id
 }
 
