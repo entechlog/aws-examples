@@ -1,10 +1,6 @@
 resource "aws_secretsmanager_secret" "msk" {
-  name       = "AmazonMSK_${lower(var.env_code)}_${lower(var.project_code)}_kafka_usr"
+  name       = "AmazonMSK_${lower(var.env_code)}_${lower(var.project_code)}_kafka_user"
   kms_key_id = aws_kms_key.kms.key_id
-}
-
-resource "aws_kms_key" "msk_sasl_scram" {
-  description = "${lower(var.env_code)}-${lower(var.project_code)}-msk"
 }
 
 resource "aws_secretsmanager_secret_version" "msk_auth" {
@@ -38,4 +34,34 @@ resource "aws_msk_scram_secret_association" "sasl_scram" {
   depends_on = [
     aws_secretsmanager_secret_version.msk_auth
   ]
+}
+
+// Snowflake connector credentials
+
+resource "aws_secretsmanager_secret" "snowflake" {
+  name       = "${lower(var.env_code)}_${lower(var.project_code)}_snowflake"
+  kms_key_id = aws_kms_key.kms.key_id
+}
+
+resource "aws_secretsmanager_secret_version" "snowflake_auth" {
+  secret_id     = aws_secretsmanager_secret.snowflake.id
+  secret_string = jsonencode({ private_key = var.snowflake_private_key, password = var.snowflake_private_key_passphrase })
+}
+
+resource "aws_secretsmanager_secret_policy" "snowflake" {
+  secret_arn = aws_secretsmanager_secret.snowflake.arn
+  policy     = <<POLICY
+{
+  "Version" : "2012-10-17",
+  "Statement" : [ {
+    "Sid": "AWSKafkaResourcePolicy",
+    "Effect" : "Allow",
+    "Principal" : {
+      "Service" : "kafka.amazonaws.com"
+    },
+    "Action" : "secretsmanager:getSecretValue",
+    "Resource" : "${aws_secretsmanager_secret.snowflake.arn}"
+  } ]
+}
+POLICY
 }

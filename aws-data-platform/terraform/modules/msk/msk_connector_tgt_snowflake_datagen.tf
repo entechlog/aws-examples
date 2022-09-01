@@ -22,8 +22,8 @@ resource "aws_mskconnect_connector" "tgt_snowflake_datagen" {
   }
 
   worker_configuration {
-    arn      = aws_mskconnect_worker_configuration.default_config.arn
-    revision = aws_mskconnect_worker_configuration.default_config.latest_revision
+    arn      = aws_mskconnect_worker_configuration.secrets_manager_config.arn
+    revision = aws_mskconnect_worker_configuration.secrets_manager_config.latest_revision
   }
 
   connector_configuration = {
@@ -36,8 +36,8 @@ resource "aws_mskconnect_connector" "tgt_snowflake_datagen" {
     "buffer.size.bytes"                = "5000000",
     "snowflake.url.name"               = "${var.snowflake_url_name}",
     "snowflake.user.name"              = "${lower(var.env_code)}_${var.snowflake_user_name}",
-    "snowflake.private.key"            = "${var.snowflake_private_key}",
-    "snowflake.private.key.passphrase" = "${var.snowflake_private_key_passphrase}",
+    "snowflake.private.key"            = "$${secretManager:dev_entechlog_snowflake:private_key}",
+    "snowflake.private.key.passphrase" = "$${secretManager:dev_entechlog_snowflake:private_key_passphrase}",
     "snowflake.database.name"          = "${upper(var.env_code)}_ENTECHLOG_RAW_DB",
     "snowflake.schema.name"            = "datagen",
     "key.converter"                    = "org.apache.kafka.connect.storage.StringConverter",
