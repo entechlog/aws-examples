@@ -51,6 +51,23 @@ data "aws_iam_policy_document" "iam_policy_document" {
     resources = ["*"]
   }
 
+  statement {
+    sid = "readSecrets"
+    actions = [
+    "secretsmanager:GetSecretValue"]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "readKMS"
+    actions = [
+      "kms:Decrypt",
+    "kms:DescribeKey"]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+
 }
 
 resource "aws_iam_policy" "iam_policy" {

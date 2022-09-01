@@ -1,5 +1,5 @@
 resource "aws_mskconnect_worker_configuration" "default_config" {
-  name                    = "default-config"
+  name                    = "default-kafka-config"
   properties_file_content = <<EOT
 key.converter=org.apache.kafka.connect.storage.StringConverter
 value.converter=org.apache.kafka.connect.storage.StringConverter

@@ -45,7 +45,7 @@ resource "aws_secretsmanager_secret" "snowflake" {
 
 resource "aws_secretsmanager_secret_version" "snowflake_auth" {
   secret_id     = aws_secretsmanager_secret.snowflake.id
-  secret_string = jsonencode({ private_key = var.snowflake_private_key, password = var.snowflake_private_key_passphrase })
+  secret_string = jsonencode({ private_key = var.snowflake_private_key, private_key_passphrase = var.snowflake_private_key_passphrase })
 }
 
 resource "aws_secretsmanager_secret_policy" "snowflake" {
