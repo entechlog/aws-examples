@@ -3,7 +3,7 @@
 - [References](#references)
   - [MSK](#msk)
   - [MWAA](#mwaa)
-- [Pending](#pending)
+- [Feature wish list](#feature-wish-list)
   - [MSK](#msk-1)
   - [MWAA](#mwaa-1)
   
@@ -55,21 +55,21 @@ Terraform template to create a simple data platform with VPC, Subnets, Airflow(M
 - https://docs.aws.amazon.com/mwaa/latest/userguide/connections-secrets-manager.html
 - https://catalog.us-east-1.prod.workshops.aws/workshops/795e88bb-17e2-498f-82d1-2104f4824168/en-US/workshop-2-2-2/setup/s3
 
-# Pending
+# Feature wish list
 ## MSK
-- Fix the MSK service_execution_role_arn ✔️
-- Disable MSK unauthenticated access and test connectors ✔️
-- Create an EC2 instance to test scram auth
-- Install Kafka UI
+
+| Feature                                                | Status  |
+| ------------------------------------------------------ | ------- |
+| Fix the MSK service_execution_role_arn                 | ✔️       |
+| Disable MSK unauthenticated access and test connectors | ✔️       |
+| Create an EC2 instance to test scram auth              | Pending |
+| Install Kafka UI in ECS                                | Pending |
 
 ## MWAA
-- Role for MWAA users to grant access
-  - https://docs.aws.amazon.com/mwaa/latest/userguide/access-policies.html
-- Custom Image ✔️
-  - Done using requirements
-- Variables ✔️
-  - https://docs.aws.amazon.com/mwaa/latest/userguide/samples-variables-import.html 
-- Snowflake connection ✔️
-  - https://docs.aws.amazon.com/mwaa/latest/userguide/connections-secrets-manager.html
-- Cloud watch log group ✔️
-  - Will be same as cluster name, No option to customize
+| Feature                                                                                                       | Status | Notes                                                                                  |
+| ------------------------------------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
+| [Role for MWAA users to grant access](https://docs.aws.amazon.com/mwaa/latest/userguide/access-policies.html) | ✔️      |                                                                                        |
+| Custom Image                                                                                                  | ✔️      | Done using requirements                                                                |
+| Variables                                                                                                     | ✔️      | See https://docs.aws.amazon.com/mwaa/latest/userguide/samples-variables-import.html    |
+| Snowflake connection                                                                                          | ✔️      | See https://docs.aws.amazon.com/mwaa/latest/userguide/connections-secrets-manager.html |
+| Cloud watch log group                                                                                         | ✔️      | Will be same as cluster name, No option to customize                                   |

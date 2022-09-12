@@ -1,6 +1,6 @@
 resource "aws_secretsmanager_secret" "msk" {
   name       = "AmazonMSK_${lower(var.env_code)}_${lower(var.project_code)}_kafka_user"
-  kms_key_id = aws_kms_key.kms.key_id
+  kms_key_id = aws_kms_key.kms_msk.key_id
 }
 
 resource "aws_secretsmanager_secret_version" "msk_auth" {
@@ -40,7 +40,7 @@ resource "aws_msk_scram_secret_association" "sasl_scram" {
 
 resource "aws_secretsmanager_secret" "snowflake" {
   name       = "${lower(var.env_code)}_${lower(var.project_code)}_snowflake"
-  kms_key_id = aws_kms_key.kms.key_id
+  kms_key_id = aws_kms_key.kms_msk.key_id
 }
 
 resource "aws_secretsmanager_secret_version" "snowflake_auth" {
