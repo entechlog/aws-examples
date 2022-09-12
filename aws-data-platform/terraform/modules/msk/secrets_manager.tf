@@ -39,7 +39,7 @@ resource "aws_msk_scram_secret_association" "sasl_scram" {
 // Snowflake connector credentials
 
 resource "aws_secretsmanager_secret" "snowflake" {
-  name       = "${lower(var.env_code)}_${lower(var.project_code)}_snowflake"
+  name       = "/msk/connect/${lower(var.env_code)}_${lower(var.project_code)}_snowflake"
   kms_key_id = aws_kms_key.kms_msk.key_id
 }
 

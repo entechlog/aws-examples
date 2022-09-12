@@ -62,6 +62,7 @@ Terraform template to create a simple data platform with VPC, Subnets, Airflow(M
 | ------------------------------------------------------ | ------- |
 | Fix the MSK service_execution_role_arn                 | ✔️       |
 | Disable MSK unauthenticated access and test connectors | ✔️       |
+| User parameters in connect config like passphrase      | Pending |
 | Create an EC2 instance to test scram auth              | Pending |
 | Install Kafka UI in ECS                                | Pending |
 
