@@ -76,6 +76,6 @@ socket.request.max.bytes = 104857600
 socket.receive.buffer.bytes = 102400
 replica.lag.time.max.ms = 30000
 num.replica.fetchers = 2
-num.partitions = 1
+num.partitions = 3
 PROPERTIES
 }

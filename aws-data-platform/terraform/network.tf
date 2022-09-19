@@ -9,4 +9,5 @@ module "vpc" {
   private_subnet_cidr_block = var.private_subnet_cidr_block
   public_subnet_cidr_block  = var.public_subnet_cidr_block
   open_monitoring           = var.open_monitoring
+  remote_cidr_block         = var.remote_cidr_block
 }
