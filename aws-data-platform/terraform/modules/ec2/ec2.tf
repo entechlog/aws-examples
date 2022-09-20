@@ -18,7 +18,8 @@ resource "aws_instance" "kafka_client" {
   ami                         = "ami-05fa00d4c63e32376"
   instance_type               = "t2.small"
   subnet_id                   = var.private_subnet_id
-  associate_public_ip_address = true
+  associate_public_ip_address = false
+  user_data                   = file("${path.module}/userdata/setup_kafka_client.sh")
 
   vpc_security_group_ids = [var.ssh_security_group_id]
 

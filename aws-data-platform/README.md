@@ -83,6 +83,7 @@ sasl.mechanism=SCRAM-SHA-512
 sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username=my-user password=**********;
 ```
 
+kcat is installed using user data and run `tail -f /var/log/cloud-init-output.log` for user data logs
 
 ## MWAA
 | Feature                                                                                                       | Status | Notes                                                                                  |
