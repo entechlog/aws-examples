@@ -10,6 +10,10 @@ output "public_subnet_id" {
   value = module.vpc.public_subnet_id
 }
 
-output "security_group" {
-  value = module.vpc.security_group
+output "ssh_security_group_id" {
+  value = module.vpc.ssh_security_group_id
+}
+
+output "kafka_security_group_id" {
+  value = module.vpc.kafka_security_group_id
 }

@@ -1,6 +1,7 @@
 - [Overview](#overview)
 - [Start container](#start-container)
 - [References](#references)
+  - [VPC](#vpc)
   - [MSK](#msk)
   - [MWAA](#mwaa)
 - [Feature wish list](#feature-wish-list)
@@ -33,6 +34,10 @@ Terraform template to create a simple data platform with VPC, Subnets, Airflow(M
   ```
   
 # References
+
+## VPC
+- https://aws.plainenglish.io/connecting-to-a-private-instance-using-a-bastion-host-within-a-custom-vpc-7cf7cf35fb97
+
 ## MSK
 - https://github.com/vinamra1502/terraform-work/tree/main/terraform-module/msk
 - https://github.com/msfidelis/aws-msk-glue-kafka-setup
@@ -63,8 +68,22 @@ Terraform template to create a simple data platform with VPC, Subnets, Airflow(M
 | Fix the MSK service_execution_role_arn                 | ✔️       |
 | Disable MSK unauthenticated access and test connectors | ✔️       |
 | User parameters in connect config like passphrase      | Pending |
-| Create an EC2 instance to test scram auth              | Pending |
+| Create an EC2 instance to test scram auth              | ✔️       |
 | Install Kafka UI in ECS                                | Pending |
+
+See [here](https://fmunz.medium.com/kafkacat-on-amazonlinux-centos-d7ded88042e8) for more details on how to install Kafka cat on Amazon Linux AMI. Here is an example kcat command 
+
+```bash
+./kcat -L -b b-3.deventechlogmsk.iddiew.c16.kafka.us-east-1.amazonaws.com:9096,b-2.deventechlogmsk.iddiew.c16.kafka.us-east-1.amazonaws.com:9096,b-1.deventechlogmsk.iddiew.c16.kafka.us-east-1.amazonaws.com:9096 -X security.protocol=SASL_SSL -X sasl.mechanism=SCRAM-SHA-512 -X sasl.username=foo -X sasl.password=xxxxxxx
+```
+
+```config
+security.protocol=SASL_SSL
+sasl.mechanism=SCRAM-SHA-512
+sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username=my-user password=**********;
+```
+
+kcat is installed using user data and run `tail -f /var/log/cloud-init-output.log` for user data logs
 
 ## MWAA
 | Feature                                                                                                       | Status | Notes                                                                                  |

@@ -7,3 +7,8 @@ variable "security_group_id" {
   type    = string
   default = ""
 }
+
+variable "remote_cidr_block" {
+  type    = string
+  default = ""
+}

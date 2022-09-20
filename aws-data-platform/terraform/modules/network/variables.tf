@@ -36,3 +36,8 @@ variable "public_subnet_cidr_block" {
 variable "open_monitoring" {
   default = true
 }
+
+variable "remote_cidr_block" {
+  description = "IP address of remote network for VPN setup"
+  default     = "192.168.0.1/32"
+}

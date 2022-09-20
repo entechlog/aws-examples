@@ -4,7 +4,7 @@ module "msk" {
   env_code          = var.env_code
   project_code      = var.project_code
   private_subnet_id = module.vpc.private_subnet_id
-  security_group_id = module.vpc.security_group
+  security_group_id = module.vpc.kafka_security_group_id
 
   kafka_unauthenticated_access_enabled = var.kafka_unauthenticated_access_enabled
 

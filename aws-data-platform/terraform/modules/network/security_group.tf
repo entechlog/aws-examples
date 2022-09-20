@@ -1,10 +1,10 @@
-resource "aws_security_group" "sg" {
-  name        = "${lower(var.env_code)}-${lower(var.project_code)}-sg"
-  description = "Security Group for ${var.project_code} in ${upper(var.env_code)}"
+resource "aws_security_group" "kafka_sg" {
+  name        = "${lower(var.env_code)}-${lower(var.project_code)}-kafka-sg"
+  description = "Security group for ${var.project_code} Kafka in ${upper(var.env_code)}"
   vpc_id      = aws_vpc.vpc.id
 
   tags = merge(local.tags, {
-    Name = "${lower(var.env_code)}-${lower(var.project_code)}-sg"
+    Name = "${lower(var.env_code)}-${lower(var.project_code)}-kafka-sg"
   })
 }
 
@@ -14,7 +14,7 @@ resource "aws_security_group_rule" "ingress_all" {
   to_port           = 65535
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.kafka_sg.id
 }
 
 resource "aws_security_group_rule" "open_monitoring_jmx" {
@@ -25,7 +25,7 @@ resource "aws_security_group_rule" "open_monitoring_jmx" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "prometheus jmx exporter"
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.kafka_sg.id
 }
 
 resource "aws_security_group_rule" "open_monitoring_node" {
@@ -36,7 +36,7 @@ resource "aws_security_group_rule" "open_monitoring_node" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "prometheus node exporter"
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.kafka_sg.id
 }
 
 resource "aws_security_group_rule" "kafka_default" {
@@ -46,7 +46,7 @@ resource "aws_security_group_rule" "kafka_default" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "kafka default"
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.kafka_sg.id
 }
 
 resource "aws_security_group_rule" "kafka_tls" {
@@ -56,7 +56,7 @@ resource "aws_security_group_rule" "kafka_tls" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "kafka tls"
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.kafka_sg.id
 }
 
 resource "aws_security_group_rule" "kafka_sasl_scram" {
@@ -66,7 +66,7 @@ resource "aws_security_group_rule" "kafka_sasl_scram" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "kafka scram"
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.kafka_sg.id
 }
 
 resource "aws_security_group_rule" "kafka_sasl_iam" {
@@ -76,7 +76,7 @@ resource "aws_security_group_rule" "kafka_sasl_iam" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "kafka iam"
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.kafka_sg.id
 }
 
 resource "aws_security_group_rule" "zookeeper" {
@@ -86,7 +86,7 @@ resource "aws_security_group_rule" "zookeeper" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "zookeeper"
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.kafka_sg.id
 }
 
 resource "aws_security_group_rule" "zookeeper_tls" {
@@ -96,7 +96,7 @@ resource "aws_security_group_rule" "zookeeper_tls" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "zookeeper tls"
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.kafka_sg.id
 }
 
 resource "aws_security_group_rule" "egress_all" {
@@ -105,5 +105,28 @@ resource "aws_security_group_rule" "egress_all" {
   from_port         = 0
   protocol          = "all"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.sg.id
+  security_group_id = aws_security_group.kafka_sg.id
+}
+
+resource "aws_security_group" "ssh_sg" {
+  name        = "${lower(var.env_code)}-${lower(var.project_code)}-ssh-sg"
+  description = "Security group for ${var.project_code} SSH in ${upper(var.env_code)}"
+  vpc_id      = aws_vpc.vpc.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.remote_cidr_block, var.vpc_cidr_block]
+  }
+  tags = merge(local.tags, {
+    Name = "${lower(var.env_code)}-${lower(var.project_code)}-ssh-sg"
+  })
 }
