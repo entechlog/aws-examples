@@ -7,6 +7,7 @@
 - [Feature wish list](#feature-wish-list)
   - [MSK](#msk-1)
   - [MWAA](#mwaa-1)
+  - [Notes](#notes)
   
 # Overview
 Terraform template to create a simple data platform with VPC, Subnets, Airflow(MWAA) and Kafka(MSK)
@@ -93,3 +94,13 @@ kcat is installed using user data and run `tail -f /var/log/cloud-init-output.lo
 | Variables                                                                                                     | ✔️      | See https://docs.aws.amazon.com/mwaa/latest/userguide/samples-variables-import.html    |
 | Snowflake connection                                                                                          | ✔️      | See https://docs.aws.amazon.com/mwaa/latest/userguide/connections-secrets-manager.html |
 | Cloud watch log group                                                                                         | ✔️      | Will be same as cluster name, No option to customize                                   |
+
+## Notes
+- Command to change convert dos files to unix files
+  ``` 
+  dos2unix find . -type f -print0 | xargs -0 -n 1 -P 4 dos2unix
+  ```
+- Command to fix git crlf config
+  ```
+  git config --global core.autocrlf true
+  ```
