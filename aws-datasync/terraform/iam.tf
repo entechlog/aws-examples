@@ -1,6 +1,6 @@
 # Development Account: IAM Role to be assumed by Production Account
 resource "aws_iam_role" "cross_account_role" {
-  name               = "${local.resource_name_prefix}-cross-account-s3-rw-access-role"
+  name               = "${local.resource_name_prefix}-cross-account-role"
   assume_role_policy = data.aws_iam_policy_document.cross_account_role__policy_document.json
 }
 

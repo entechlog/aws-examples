@@ -28,14 +28,14 @@ You need to configure the AWS CLI with a profile that can assume the cross-accou
     region = <REGION>
     ```
 
-    Replace <DEV_ACCOUNT_ID> with the AWS account ID where the cross-account role exists, <ROLE_NAME> with the name of the IAM role you wish to assume (e.g., dev-entechlog-data-cross-account-s3-rw-access-role), <BASE_PROFILE> with a profile that has permissions to assume this role, and <REGION> with the appropriate AWS region.
+    Replace <DEV_ACCOUNT_ID> with the AWS account ID where the cross-account role exists, <ROLE_NAME> with the name of the IAM role you wish to assume (e.g., dev-entechlog-data-cross-account-role), <BASE_PROFILE> with a profile that has permissions to assume this role, and <REGION> with the appropriate AWS region.
 
     Steps to Configure:
     - Open the AWS configuration file in a text editor.
     - Add the above configuration to the file, replacing placeholders with actual values.
     - Save and close the file.
 
-2. Setting Up the Base Profile
+1. Setting Up the Base Profile
 The source_profile in the cross profile configuration refers to another profile that has credentials to assume the cross-account role. Ensure that this base profile is correctly set up with access keys.
 
     Example Base Profile Setup:
@@ -46,7 +46,7 @@ The source_profile in the cross profile configuration refers to another profile 
     region = <REGION>
     ```
 
-3. Testing the Profile
+1. Testing the Profile
 To validate that the cross profile is correctly set up and can assume the cross-account role, use the AWS CLI to make a call that requires valid credentials.
 
     Test Command:
@@ -56,7 +56,7 @@ To validate that the cross profile is correctly set up and can assume the cross-
 
     This command should return details of the assumed role, including the account ID and the role ARN.
 
-4. Accessing the S3 Bucket
+1. Accessing the S3 Bucket
 Once you've confirmed the profile is working, you can use it to access resources in the other account. For example, to list the contents of the S3 bucket:
 
     ```bash
