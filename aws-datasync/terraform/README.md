@@ -9,12 +9,16 @@ This repository contains a comprehensive guide and the necessary Terraform confi
 
 ## Copy using aws CLI
 ```mermaid
-graph TD;
-    SourceAccount[Source Account] -->|Creates IAM Role & S3 Bucket| SourceS3Bucket[Source S3 Bucket]
-    DestinationAccount[Destination Account] -->|Bucket Receives Data| DestinationS3Bucket
+    graph TD;
+        SourceAccount[Source Account] -->|Defines IAM Role| SourceRole[Cross-Account IAM Role]
+        SourceRole -->|Trust Relationship| DestinationRootUser[Destination Account Root User]
 
-    SourceS3Bucket -->|Stores Uploaded Files| SourceS3Object[Sample Files]
-    SourceAccount -->|IAM Role Trusts| DestinationAccount
+        DestinationAccount[Destination Account] -->|Defines IAM User| DestinationUser[Cross-Account IAM User]
+        DestinationUser -->|Assigned Assume Role Policy| DestinationPolicy[Assume Role Policy]
+        DestinationPolicy -->|Allows Role Assumption| SourceRole
+
+        SourceAccount -->|Creates S3 Bucket| S3Bucket[S3 Bucket]
+        S3Bucket -->|Bucket Policy for Role Access| SourceRole
 ```
 
 1. Configure the AWS CLI Profile
@@ -70,21 +74,19 @@ Once you've confirmed the profile is working, you can use it to access resources
 ## Copy using DataSync
 ```mermaid
     graph TD;
-        SourceAccount[Source Account] -->|DataSync Role & Policy| SourceS3Bucket[Source S3 Bucket]
-        SourceS3Bucket -->|Syncs Data| DataSyncTask[DataSync Task]
-        DataSyncTask -->|Transfers Data| DestinationS3Bucket[Destination S3 Bucket]
-        DestinationAccount[Destination Account] -->|Receives Data| DestinationS3Bucket
+        SourceAccount[Source Account] -->|DataSync IAM Role| SourceS3Bucket[Source S3 Bucket]
+        SourceS3Bucket -->|DataSync Task| DestinationDataSyncS3Bucket[Destination DataSync S3 Bucket]
+        DestinationAccount[Destination Account] -->|Receives Data| DestinationDataSyncS3Bucket
+        DataSyncTask[DataSync Task] -->|Transfers Data| DestinationDataSyncS3Bucket
 ```
 
 ## Copy using replication
 ```mermaid
     graph TD;
         SourceAccount[Source Account] -->|Replication IAM Role| SourceS3Bucket[Source S3 Bucket]
-        SourceS3Bucket -->|Replication Task| DestinationS3Bucket[Destination S3 Bucket]
+        SourceS3Bucket -->|Replication Configuration| DestinationS3Bucket[Destination S3 Bucket]
         DestinationAccount[Destination Account] -->|Bucket Policy| DestinationS3Bucket
-
-        SourceS3Bucket -->|Permissions to Replicate| SourceRole[Replication IAM Role]
-        SourceRole -->|Assumes Role| DestinationS3Bucket
+        ReplicationTask[Replication Task] -->|Replicates Data| DestinationS3Bucket
 ```
 
 # Reference
