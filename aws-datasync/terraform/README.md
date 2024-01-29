@@ -1,6 +1,5 @@
 - [Overview](#overview)
   - [Copy using aws CLI](#copy-using-aws-cli)
-- [Steps to setup CLI access](#steps-to-setup-cli-access)
   - [Copy using DataSync](#copy-using-datasync)
   - [Copy using replication](#copy-using-replication)
 - [Reference](#reference)
@@ -31,7 +30,6 @@ This repository contains a comprehensive guide and the necessary Terraform confi
         DestinationS3BucketCopy -->|Bucket Policy allows source role access| SourceRole
 ```
 
-# Steps to setup CLI access
 1. Configure the AWS CLI Profile
 You need to configure the AWS CLI with a profile that can assume the cross-account role. This is typically done in your AWS configuration file, which is located at ~/.aws/config on Linux and macOS, or at C:\Users\USERNAME\.aws\config on Windows.
 
@@ -51,7 +49,7 @@ You need to configure the AWS CLI with a profile that can assume the cross-accou
     - Add the above configuration to the file, replacing placeholders with actual values.
     - Save and close the file.
 
-2. Setting Up the Base Profile
+1. Setting Up the Base Profile
 The source_profile in the cross profile configuration refers to another profile that has credentials to assume the cross-account role. Ensure that this base profile is correctly set up with access keys.
 
     Example Base Profile Setup:
@@ -62,7 +60,7 @@ The source_profile in the cross profile configuration refers to another profile 
     region = <REGION>
     ```
 
-3. Testing the Profile
+1. Testing the Profile
 To validate that the cross profile is correctly set up and can assume the cross-account role, use the AWS CLI to make a call that requires valid credentials.
 
     Test Command:
@@ -72,7 +70,7 @@ To validate that the cross profile is correctly set up and can assume the cross-
 
     This command should return details of the assumed role, including the account ID and the role ARN.
 
-4. Accessing the S3 Bucket
+1. Accessing the S3 Bucket
 Once you've confirmed the profile is working, you can use it to access resources in the other account. For example, to list the contents of the S3 bucket:
 
     ```bash
