@@ -11,9 +11,9 @@ This repository contains a comprehensive guide and the necessary Terraform confi
     graph TD;
         A[EventBridge] -->|Triggers| B[Lambda]
         B -->|Triggers| C[DynamoDB Backup]
-        C -->|To| D[Amazon S3 (Source)]
+        C -->|To| D[Source Amazon S3]
         D -->|Triggers| E[Lambda]
-        E -->|Writes to| F[Amazon S3 (Target)]
+        E -->|Writes to| F[Target Amazon S3]
 ```
 
 # Reference
