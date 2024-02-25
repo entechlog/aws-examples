@@ -433,6 +433,7 @@ terraform.rc
 
 # Other Terraform files
 .terraform.lock.hcl
+*.zip
 
 # Secrets and key files
 *.pkrvars.*

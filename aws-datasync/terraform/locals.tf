@@ -9,4 +9,7 @@ locals {
   datasync_destination_bucket_name    = "${local.resource_name_prefix}-demo-destination-datasync"
   copy_destination_bucket_name        = "${local.resource_name_prefix}-demo-destination-copy"
   replication_destination_bucket_name = "${local.resource_name_prefix}-demo-destination-replication"
+  lambda_destination_bucket_name      = "${local.resource_name_prefix}-demo-destination-lambda"
+
+  output_path = "source=${lower(var.required_app_code)}/"
 }
