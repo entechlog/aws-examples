@@ -65,7 +65,7 @@ resource "aws_iam_role_policy_attachment" "source_replication_policy_attach" {
 
 # Destination Account: S3 Bucket
 module "destination_s3_bucket_replication" {
-  source         = "./modules/s3"
+  source         = "../../aws-modules/s3"
   s3_bucket_name = ["demo-destination-replication"]
   use_env_code   = true
   providers      = { aws = aws.prd }

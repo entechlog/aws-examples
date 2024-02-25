@@ -56,7 +56,7 @@ resource "aws_datasync_location_s3" "source_s3_location" {
 
 # Destination Account: S3 Bucket
 module "destination_s3_bucket_datasync" {
-  source         = "./modules/s3"
+  source         = "../../aws-modules/s3"
   s3_bucket_name = ["demo-destination-datasync"]
   use_env_code   = true
   providers      = { aws = aws.prd }

@@ -53,7 +53,7 @@ resource "aws_iam_user_policy_attachment" "destination_user_policy_attachment" {
 
 # Source Account: Create an S3 bucket
 module "source_s3_bucket" {
-  source         = "./modules/s3"
+  source         = "../../aws-modules/s3"
   s3_bucket_name = ["demo-source"]
   use_env_code   = true
 }
@@ -106,7 +106,7 @@ module "destination_s3_bucket_copy" {
 
   providers = { aws = aws.prd }
 
-  source         = "./modules/s3"
+  source         = "../../aws-modules/s3"
   s3_bucket_name = ["demo-destination-copy"]
   use_env_code   = true
 }
