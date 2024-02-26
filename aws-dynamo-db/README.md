@@ -1,5 +1,6 @@
 - [Overview](#overview)
 - [Architecture](#architecture)
+- [Steps](#steps)
 - [Reference](#reference)
 
 # Overview
@@ -15,6 +16,25 @@ This repository contains a comprehensive guide and the necessary Terraform confi
         D -->|Triggers| E[Lambda]
         E -->|Writes to| F[Target Amazon S3]
 ```
+
+# Steps
+
+- Create the resource using below commands
+  ```bash
+  terraform fmt -recursive
+  terraform apply
+  ```
+
+- Insert sample data like below one
+  ```json
+  {
+  "PlayerId": {"S": "p123"},
+  "GameTitle": {"S": "Space Invaders"},
+  "Score": {"N": "4500"}
+  }
+  ```
+
+- Create Snowflake objects and validate the data in Snowflake using `aws-dynamo-db\sql\create_resources.sql`
 
 # Reference
 - https://dev.to/ritaly/how-to-export-aws-dynamodb-data-to-s3-for-recurring-tasks-4l47
