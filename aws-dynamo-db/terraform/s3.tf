@@ -44,6 +44,20 @@ resource "aws_s3_bucket_policy" "destination_lambda_bucket_policy" {
           "arn:aws:s3:::${local.destination_bucket_name}",
           "arn:aws:s3:::${local.destination_bucket_name}/*"
         ]
+      },
+      {
+        Sid       = "SnowflakeReadOnlyAccess",
+        Effect    = "Allow",
+        Principal = { AWS = aws_iam_role.snowflake_s3_access_role.arn },
+        Action = [
+          "s3:GetObject*",
+          "s3:GetBucket*",
+          "s3:List*"
+        ],
+        Resource = [
+          "arn:aws:s3:::${local.destination_bucket_name}",
+          "arn:aws:s3:::${local.destination_bucket_name}/*"
+        ]
       }
     ]
   })
