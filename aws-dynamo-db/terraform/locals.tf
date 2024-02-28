@@ -5,9 +5,8 @@ locals {
 
   tags = { Author = "Terraform", Environment = "${upper(var.required_env_code)}" }
 
-  landing_zone_bucket_name = "${local.resource_name_prefix}-landing-zone"
-  source_bucket_name       = "${local.resource_name_prefix}-landing-zone"
-  destination_bucket_name  = "${local.resource_name_prefix}-raw-zone"
+  source_bucket_name = "${local.resource_name_prefix}-dynamodb-export"
+  target_bucket_name = "${local.resource_name_prefix}-landing-zone"
 
   output_path = "source=${lower(var.required_app_code)}/"
 }

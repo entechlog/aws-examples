@@ -1,31 +1,55 @@
-# Source Account: Create an S3 bucket
+# -------------------------------------------------------------------------
+# S3 bucket for source data in the source account
+# -------------------------------------------------------------------------
 module "source_s3_bucket" {
   source         = "../../aws-modules/s3"
-  s3_bucket_name = ["landing-zone"]
+  s3_bucket_name = ["dynamodb-export"]
   use_env_code   = true
+  providers      = { aws = aws.app }
 }
 
 # -------------------------------------------------------------------------
-# Destination S3 bucket for storing copied data
+# S3 bucket for destination data in the target account
 # -------------------------------------------------------------------------
 module "destination_s3_bucket" {
   source         = "../../aws-modules/s3"
-  s3_bucket_name = ["raw-zone"]
+  s3_bucket_name = ["landing-zone"]
   use_env_code   = true
-  providers      = { aws = aws.prd }
+  providers      = { aws = aws.data }
 }
 
 # -------------------------------------------------------------------------
-# S3 bucket policy for destination bucket, allowing Lambda copy function access
+# S3 bucket notification to trigger S3 copy Lambda function
+# This notification is set on the source bucket to trigger a Lambda function
+# for copying data to the destination bucket upon new object creation.
 # -------------------------------------------------------------------------
-resource "aws_s3_bucket_policy" "destination_lambda_bucket_policy" {
-  provider = aws.prd
-  bucket   = local.destination_bucket_name
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  provider = aws.app
+
+  bucket = module.source_s3_bucket.aws_s3_bucket__name[0]
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.s3_copy_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_suffix       = ".json.gz" # Adjust based on your input file types
+  }
+
+  depends_on = [aws_lambda_permission.allow_bucket]
+}
+
+# -------------------------------------------------------------------------
+# S3 bucket policy for the destination bucket
+# This policy allows the Lambda function to access the destination bucket
+# for operations like put, get, list, and delete objects.
+# -------------------------------------------------------------------------
+resource "aws_s3_bucket_policy" "lambda_bucket_policy_destination" {
+  provider = aws.data
+  bucket   = local.target_bucket_name
   policy = jsonencode({
     Version = "2008-10-17",
     Statement = [
       {
-        Sid       = "LambdaS3CopyAccess",
+        Sid       = "LambdaS3WriteAccess",
         Effect    = "Allow",
         Principal = { AWS = aws_iam_role.lambda_execution_role.arn },
         Action = [
@@ -41,22 +65,36 @@ resource "aws_s3_bucket_policy" "destination_lambda_bucket_policy" {
           "s3:PutObjectTagging"
         ],
         Resource = [
-          "arn:aws:s3:::${local.destination_bucket_name}",
-          "arn:aws:s3:::${local.destination_bucket_name}/*"
+          "arn:aws:s3:::${local.target_bucket_name}",
+          "arn:aws:s3:::${local.target_bucket_name}/*"
         ]
-      },
+      }
+    ]
+  })
+}
+
+# -------------------------------------------------------------------------
+# S3 bucket policy for the source bucket
+# This policy grants the Lambda function permissions to access the source bucket
+# for reading objects when triggered by the S3 bucket notification.
+# -------------------------------------------------------------------------
+resource "aws_s3_bucket_policy" "source_bucket_policy_lambda" {
+  provider = aws.app
+  bucket   = local.source_bucket_name
+  policy = jsonencode({
+    Version = "2008-10-17",
+    Statement = [
       {
-        Sid       = "SnowflakeReadOnlyAccess",
+        Sid       = "LambdaS3ReadAccess",
         Effect    = "Allow",
-        Principal = { AWS = aws_iam_role.snowflake_s3_access_role.arn },
+        Principal = { AWS = aws_iam_role.lambda_execution_role.arn },
         Action = [
-          "s3:GetObject*",
-          "s3:GetBucket*",
+          "s3:Get*",
           "s3:List*"
         ],
         Resource = [
-          "arn:aws:s3:::${local.destination_bucket_name}",
-          "arn:aws:s3:::${local.destination_bucket_name}/*"
+          "arn:aws:s3:::${local.source_bucket_name}",
+          "arn:aws:s3:::${local.source_bucket_name}/*"
         ]
       }
     ]

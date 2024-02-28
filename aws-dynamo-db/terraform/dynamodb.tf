@@ -1,4 +1,8 @@
+# -------------------------------------------------------------------------
+# Define DynamoDB table for game scores
+# -------------------------------------------------------------------------
 resource "aws_dynamodb_table" "game_scores" {
+  provider       = aws.app
   name           = "${local.resource_name_prefix}-game-scores"
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
@@ -43,5 +47,4 @@ resource "aws_dynamodb_table" "game_scores" {
     Name        = "${local.resource_name_prefix}-game-scores"
     Environment = "${upper(var.required_env_code)}"
   })
-
 }

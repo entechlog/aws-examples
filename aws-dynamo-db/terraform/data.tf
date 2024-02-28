@@ -3,14 +3,12 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
-data "aws_caller_identity" "current" {}
-
 data "aws_region" "current" {}
 
-data "aws_caller_identity" "dev" {}
+data "aws_caller_identity" "app" {
+  provider = aws.app
+}
 
-data "aws_caller_identity" "prd" {
-
-  provider = aws.prd
-
+data "aws_caller_identity" "data" {
+  provider = aws.data
 }

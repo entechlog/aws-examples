@@ -9,13 +9,14 @@ terraform {
 
 # This is the "default" provider
 provider "aws" {
+  alias   = "app"
   region  = var.optional_aws_region
   profile = "dev"
 }
 
 # This provider uses the "prd" alias
 provider "aws" {
-  alias   = "prd"
+  alias   = "data"
   region  = var.optional_aws_region
   profile = "prd"
 }
