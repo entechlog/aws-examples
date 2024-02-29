@@ -12,32 +12,28 @@ exports.handler = async (event) => {
             const key = record.s3.object.key;
             console.log(`Processing file: ${key}`); // Log the file name that triggered the event
 
-            // Assume event_name is the first part of the key
+            // Split the key into parts and find date components
             const parts = key.split('/');
+            let year = parts.find(part => part.match(/^\d{4}$/));
+            let month = parts.find(part => part.match(/^\d{2}$/) && parts.indexOf(part) === parts.indexOf(year) + 1);
+            let day = parts.find(part => part.match(/^\d{2}$/) && parts.indexOf(part) === parts.indexOf(month) + 1);
+
+            // Use current date as fallback
+            if (!year || !month || !day) {
+                console.log(`Date not found in the key: ${key}, using current date.`);
+                const currentDate = new Date();
+                year = currentDate.getFullYear().toString();
+                month = ('0' + (currentDate.getMonth() + 1)).slice(-2); // JS months are 0-indexed
+                day = ('0' + currentDate.getDate()).slice(-2);
+            }
+
+            // Assume event_name is the first part of the key
             const event_name = parts[0]; // Adjust based on actual key structure if needed
             const fileName = parts.pop(); // Extract the filename
 
-            // Construct the new destination key
-            const destinationKey = `${outputPath}event_name=${event_name}/${fileName}`;
+            // Construct the destination key
+            const destinationKey = `${outputPath}event_name=${event_name}/year=${year}/month=${month}/day=${day}/${fileName}`;
 
-            // Step to empty the directory before copying the new file
-            const listParams = {
-                Bucket: destinationBucket,
-                Prefix: `${outputPath}event_name=${event_name}/`
-            };
-
-            const listedObjects = await s3.listObjectsV2(listParams).promise();
-
-            if (listedObjects.Contents.length > 0) {
-                const deleteParams = {
-                    Bucket: destinationBucket,
-                    Delete: { Objects: listedObjects.Contents.map(({ Key }) => ({ Key })) }
-                };
-                await s3.deleteObjects(deleteParams).promise();
-                console.log(`Emptied directory: ${listParams.Prefix}`);
-            }
-
-            // Proceed to copy the new file
             try {
                 await s3.copyObject({
                     CopySource: encodeURIComponent(`${sourceBucket}/${key}`),
