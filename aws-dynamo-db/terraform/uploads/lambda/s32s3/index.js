@@ -9,45 +9,58 @@ exports.handler = async (event) => {
 
     try {
         for (const record of event.Records) {
-            const key = record.s3.object.key;
-            console.log(`Processing file: ${key}`); // Log the file name that triggered the event
+            const manifestKey = record.s3.object.key;
+            console.log(`Processing manifest file: ${manifestKey}`);
 
-            // Assume event_name is the first part of the key
-            const parts = key.split('/');
-            const event_name = parts[0]; // Adjust based on actual key structure if needed
-            const fileName = parts.pop(); // Extract the filename
+            // Fetch and parse the manifest file
+            const manifestData = await s3.getObject({
+                Bucket: sourceBucket,
+                Key: manifestKey
+            }).promise();
 
-            // Construct the new destination key
-            const destinationKey = `${outputPath}event_name=${event_name}/${fileName}`;
+            const manifestContent = manifestData.Body.toString('utf-8');
+            // Split the manifest content into lines, each representing a JSON object
+            const fileInfos = manifestContent.trim().split('\n').map(line => JSON.parse(line));
 
-            // Step to empty the directory before copying the new file
-            const listParams = {
-                Bucket: destinationBucket,
-                Prefix: `${outputPath}event_name=${event_name}/`
-            };
+            for (const fileInfo of fileInfos) {
+                const key = fileInfo.dataFileS3Key;
+                const parts = key.split('/');
+                // Correctly extract the event_name as the first part of the path
+                const event_name = parts[0]; // Adjusted to correctly extract event_name
 
-            const listedObjects = await s3.listObjectsV2(listParams).promise();
+                const fileName = parts[parts.length - 1]; // Extract the filename
+                // Construct the new destination key with correct event_name
+                const destinationKey = `${outputPath}event_name=${event_name}/${fileName}`;
 
-            if (listedObjects.Contents.length > 0) {
-                const deleteParams = {
+                // Step to empty the directory before copying the new file
+                const listParams = {
                     Bucket: destinationBucket,
-                    Delete: { Objects: listedObjects.Contents.map(({ Key }) => ({ Key })) }
+                    Prefix: `${outputPath}event_name=${event_name}/`
                 };
-                await s3.deleteObjects(deleteParams).promise();
-                console.log(`Emptied directory: ${listParams.Prefix}`);
-            }
 
-            // Proceed to copy the new file
-            try {
-                await s3.copyObject({
-                    CopySource: encodeURIComponent(`${sourceBucket}/${key}`),
-                    Bucket: destinationBucket,
-                    Key: destinationKey
-                }).promise();
+                const listedObjects = await s3.listObjectsV2(listParams).promise();
 
-                console.log(`Successfully copied to ${destinationBucket}/${destinationKey}`);
-            } catch (copyError) {
-                console.error(`Error copying ${key}: ${copyError.message}`);
+                if (listedObjects.Contents.length > 0) {
+                    const deleteParams = {
+                        Bucket: destinationBucket,
+                        Delete: { Objects: listedObjects.Contents.map(({ Key }) => ({ Key })) }
+                    };
+                    await s3.deleteObjects(deleteParams).promise();
+                    console.log(`Emptied directory: ${listParams.Prefix}`);
+                }
+
+                // Proceed to copy the file
+                try {
+                    await s3.copyObject({
+                        CopySource: encodeURIComponent(`${sourceBucket}/${key}`),
+                        Bucket: destinationBucket,
+                        Key: destinationKey
+                    }).promise();
+
+                    console.log(`Successfully copied to ${destinationBucket}/${destinationKey}`);
+                } catch (copyError) {
+                    console.error(`Error copying ${key}: ${copyError.message}`);
+                }
             }
         }
         return { statusCode: 200, body: 'Copy operation completed.' };
