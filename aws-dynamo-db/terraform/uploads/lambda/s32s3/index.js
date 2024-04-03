@@ -22,17 +22,14 @@ exports.handler = async (event) => {
             // Split the manifest content into lines, each representing a JSON object
             const fileInfos = manifestContent.trim().split('\n').map(line => JSON.parse(line));
 
-            for (const fileInfo of fileInfos) {
-                const key = fileInfo.dataFileS3Key;
-                const parts = key.split('/');
-                // Correctly extract the event_name as the first part of the path
-                const event_name = parts[0]; // Adjusted to correctly extract event_name
+            // Determine unique event_names to clear directories once for each
+            const eventNames = new Set(fileInfos.map(fileInfo => {
+                const parts = fileInfo.dataFileS3Key.split('/');
+                return parts[0]; // Assuming the event_name is the first part
+            }));
 
-                const fileName = parts[parts.length - 1]; // Extract the filename
-                // Construct the new destination key with correct event_name
-                const destinationKey = `${outputPath}event_name=${event_name}/${fileName}`;
-
-                // Step to empty the directory before copying the new file
+            for (const event_name of eventNames) {
+                // Empty the directory once for each unique event_name before copying files
                 const listParams = {
                     Bucket: destinationBucket,
                     Prefix: `${outputPath}event_name=${event_name}/`
@@ -48,15 +45,23 @@ exports.handler = async (event) => {
                     await s3.deleteObjects(deleteParams).promise();
                     console.log(`Emptied directory: ${listParams.Prefix}`);
                 }
+            }
 
-                // Proceed to copy the file
+            // Now proceed to copy each file
+            for (const fileInfo of fileInfos) {
+                const key = fileInfo.dataFileS3Key;
+                const parts = key.split('/');
+                const event_name = parts[0]; // Extracting the event_name again for clarity
+                const fileName = parts[parts.length - 1]; // Extract the filename
+                const destinationKey = `${outputPath}event_name=${event_name}/${fileName}`;
+
+                // Copy the file
                 try {
                     await s3.copyObject({
                         CopySource: encodeURIComponent(`${sourceBucket}/${key}`),
                         Bucket: destinationBucket,
                         Key: destinationKey
                     }).promise();
-
                     console.log(`Successfully copied to ${destinationBucket}/${destinationKey}`);
                 } catch (copyError) {
                     console.error(`Error copying ${key}: ${copyError.message}`);
