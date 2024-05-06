@@ -1,0 +1,4 @@
+loguru
+requests
+boto3
+urllib3<2
