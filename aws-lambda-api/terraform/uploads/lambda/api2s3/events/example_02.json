@@ -1,0 +1,8 @@
+{
+    "BASE_URL": "https://community-api.coinmetrics.io/v4/timeseries",
+    "ENDPOINT": "/pair-candles",
+    "FREQUENCY": "1d",
+    "PAGE_SIZE": 1000,
+    "S3_BUCKET": "your-bucket-name",
+    "S3_KEY_PREFIX": "coinmetrics-data/"
+}
