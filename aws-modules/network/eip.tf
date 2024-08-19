@@ -1,6 +1,6 @@
 /* Elastic IP for NAT */
 resource "aws_eip" "nat_eip" {
-  count  = length(var.public_subnet_cidr_block)
+  count  = var.create_single_nat_gateway ? 1 : length(var.public_subnet_cidr_block)
   domain = "vpc"
 
   tags = merge(local.tags, {

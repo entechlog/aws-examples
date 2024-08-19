@@ -1,0 +1,122 @@
+{
+	"namespace": "ksql",
+	"name": "users",
+	"type": "record",
+	"fields": [
+		{
+			"name": "registertime",
+			"type": {
+				"type": "long",
+				"arg.properties": {
+					"range": {
+						"min": 1487715775521,
+						"max": 1519273364600
+					}
+				}
+			}
+		},
+		{
+			"name": "userid",
+			"type": {
+				"type": "string",
+				"arg.properties": {
+					"regex": "User (00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})"
+				}
+			}
+		},
+		{
+			"name": "regionid",
+			"type": {
+				"type": "string",
+				"arg.properties": {
+					"regex": "Region (0[1-9]|[1-9][0-9])"
+				}
+			}
+		},
+		{
+			"name": "gender",
+			"type": {
+				"type": "string",
+				"arg.properties": {
+					"options": [
+						"MALE",
+						"FEMALE",
+						"OTHER"
+					]
+				}
+			}
+		},
+		{
+			"name": "first_name",
+			"type": {
+				"type": "string",
+				"arg.properties": {
+					"options": [
+						"Alice",
+						"Bob",
+						"Charlie",
+						"David",
+						"Eve",
+						"Frank",
+						"Grace",
+						"Hank",
+						"Ivy",
+						"Jack",
+						"Kara",
+						"Liam",
+						"Mona",
+						"Nate",
+						"Olive",
+						"Paul",
+						"Quinn",
+						"Rose",
+						"Steve",
+						"Tina",
+						"Uma",
+						"Vince",
+						"Wendy",
+						"Xander",
+						"Yara"
+					]
+				},
+				"default": "Unknown"
+			}
+		},
+		{
+			"name": "last_name",
+			"type": {
+				"type": "string",
+				"arg.properties": {
+					"options": [
+						"Anderson",
+						"Brown",
+						"Clark",
+						"Davis",
+						"Evans",
+						"Foster",
+						"Garcia",
+						"Harris",
+						"Ives",
+						"Johnson",
+						"King",
+						"Lewis",
+						"Moore",
+						"Nelson",
+						"Owens",
+						"Perez",
+						"Quinn",
+						"Roberts",
+						"Smith",
+						"Turner",
+						"Underwood",
+						"Vargas",
+						"White",
+						"Xavier",
+						"Young"
+					]
+				},
+				"default": "Unknown"
+			}
+		}
+	]
+}
