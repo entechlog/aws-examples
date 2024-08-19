@@ -42,11 +42,19 @@ variable "private_subnet_cidr_block" {
 }
 
 variable "public_subnet_cidr_block" {
+  type        = list(any)
   description = "CIDR block for public Subnet"
-  default     = ["172.32.12.0/22"]
+  default     = ["172.32.12.0/22", "172.32.16.0/22", "172.32.20.0/22"]
 }
+
 
 variable "remote_cidr_block" {
   description = "IP address of remote network for VPN setup"
   default     = "192.168.0.1/32"
+}
+
+variable "create_single_nat_gateway" {
+  description = "Whether to create a single NAT gateway or one per public subnet."
+  type        = bool
+  default     = true
 }

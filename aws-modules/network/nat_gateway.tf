@@ -1,12 +1,9 @@
-/* NAT */
-resource "aws_nat_gateway" "nat_gateway" {
-  count         = length(var.public_subnet_cidr_block)
-  allocation_id = aws_eip.nat_eip[count.index].id
-  subnet_id     = aws_subnet.public[count.index].id
+resource "aws_nat_gateway" "this" {
+  count = var.create_single_nat_gateway ? 1 : length(aws_subnet.public.*.id)
 
-  tags = merge(local.tags, {
-    Name = format("${local.resource_name_prefix}-ngw-%02d", count.index + 1)
-  })
+  allocation_id = element(aws_eip.nat_eip.*.id, count.index)
+  subnet_id     = var.create_single_nat_gateway ? element(aws_subnet.public.*.id, 0) : element(aws_subnet.public.*.id, count.index)
+  tags          = merge(local.tags, { Name = "${local.resource_name_prefix}-nat-gateway-${count.index}" })
 
   depends_on = [aws_internet_gateway.ig]
 }
