@@ -1,0 +1,9 @@
+shadowtraffic.io [icon: cloud]
+Kafka [icon: kafka]
+Kafka Connect (JDBC Sink) [icon: kafka]
+RDS (MySQL) [icon: aws-rds]
+
+// Connections
+shadowtraffic.io > Kafka
+Kafka > Kafka Connect (JDBC Sink)
+Kafka Connect (JDBC Sink) > RDS (MySQL)

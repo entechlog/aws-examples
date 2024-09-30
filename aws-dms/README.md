@@ -1,7 +1,6 @@
 - [AWS DMS Terraform Module](#aws-dms-terraform-module)
   - [Overview](#overview)
-  - [Diagram](#diagram)
-  - [Diagram Description](#diagram-description)
+  - [Setup](#setup)
   - [Usage](#usage)
   - [Connector API's](#connector-apis)
   - [Reference](#reference)
@@ -22,40 +21,31 @@ This module automates the creation and management of AWS DMS resources, includin
 - **Flexible data format settings** for S3 endpoints (CSV, JSON, Parquet)
 - **Support for date partitioning** in S3 targets
 
-## Diagram
+## Setup
 
-Below is a diagram illustrating the architecture and the flow of data through the AWS DMS components:
+- Create demo data using Kafka datagen and shadowtraffic
+  ```bash
+  docker-compose up --build -d
+  ```
 
-```mermaid
-flowchart TD
-    A[Source Database] --> B[DMS Replication Task]
-    B -->|Replicates Data| C{DMS Replication Type}
-    C -->|Server-Based| D[DMS Replication Instance]
-    C -->|Serverless| E[DMS Serverless Configuration]
-    D --> F{DMS Endpoints}
-    E --> F{DMS Endpoints}
-    F --> G[Source Endpoint]
-    F --> H[Target Endpoint]
-    H -->|To S3| I[S3 Bucket]
-    I -->|Data Format: CSV/JSON/Parquet| J[Data Files in S3]
-    I -->|Partitioned by Date| K[Partitioned Data in S3]
+- Please reduce the data volume or bring down shadowtraffic based on the use case
+  
+  ```bash
+  docker-compose rm -s -v shadowtraffic
+  ```
 
-    style A fill:#f9f,stroke:#333,stroke-width:2px;
-    style B fill:#bbf,stroke:#333,stroke-width:2px;
-    style D fill:#bbf,stroke:#333,stroke-width:2px;
-    style E fill:#bbf,stroke:#333,stroke-width:2px;
-    style G fill:#bfb,stroke:#333,stroke-width:2px;
-    style H fill:#bfb,stroke:#333,stroke-width:2px;
-    style I fill:#ffb,stroke:#333,stroke-width:2px;
-```
+- Login into developer tools container 
 
-## Diagram Description
-- Source Database: The source database from which data is extracted.
-- DMS Replication Instance: The server-based DMS instance that runs the replication task.
-- DMS Replication Task: The task that manages the data migration process, which can be configured to replicate to S3.
-- DMS Endpoints: Both source and target endpoints, with support for different target types, including S3.
-- S3 Target Bucket: The destination for replicated data, with configurable data format and partitioning options.
-- DMS Serverless Configuration: Optional serverless configuration for DMS, where no replication instance is required.
+  ```bash
+  docker exec -it developer-tools /bin/bash    
+  ```
+
+- Create the RDS and DMS modules by running
+
+  ```bash
+  terraform fmt --recursive
+  terraform apply
+  ```
 
 ## Usage
 
@@ -123,9 +113,14 @@ To monitor the status and information of the connectors, you can use the followi
 
 - http://localhost:8083/connectors?expand=status
 - http://localhost:8083/connectors?expand=info
-
+- http://localhost:8083/connector-plugins
+- 
 ## Reference
 This module was inspired by the following repositories:
 
 - [AWS DMS Replication Task by James Woolfenden](https://github.com/JamesWoolfenden/pike/blob/5335593fecb902f906ac02dfcd5f8968125f4286/terraform/aws/backup/aws_dms_replication_task.tf)
 - [UKHomeOffice DMS Serverless Terraform Module](https://github.com/UKHomeOffice/acp-tf-dms-serverless/tree/main)
+- [MySQL and PostgreSQL connectors for Snowflake](https://other-docs.snowflake.com/en/connectors/tutorials/dbtutorial)
+- [MySQL CDC](https://materialize.com/guides/mysql-cdc/)
+- [Debezium Connector](https://debezium.io/documentation/reference/2.7/connectors/mysql.html)
+- [ingestr](https://github.com/bruin-data/ingestr)

@@ -1,0 +1,198 @@
+{
+    "generators": [
+        {
+            "topic": "shadowtraffic.products",
+            "key": {
+                "productId": {
+                    "_gen": "uuid"
+                }
+            },
+            "value": {
+                "name": {
+                    "_gen": "string",
+                    "expr": "#{Commerce.productName}"
+                },
+                "unitPrice": {
+                    "_gen": "uniformDistribution",
+                    "bounds": [1, 20],
+                    "decimals": 2
+                },
+                "category": {
+                    "_gen": "string",
+                    "expr": "#{Commerce.department}"
+                }
+            },
+            "localConfigs": {
+                "maxEvents": 1000
+            }
+        },
+        {
+            "topic": "shadowtraffic.stores",
+            "key": {
+                "storeId": {
+                    "_gen": "uuid"
+                }
+            },
+            "value": {
+                "storeName": {
+                    "_gen": "string",
+                    "expr": "#{Company.name}"
+                },
+                "location": {
+                    "_gen": "string",
+                    "expr": "#{Address.city}"
+                },
+                "openedDate": {
+                    "_gen": "formatDateTime",
+                    "format": "yyyy-MM-dd",
+                    "ms": {
+                        "_gen": "subtract",
+                        "args": [
+                            {
+                                "_gen": "now"
+                            },
+                            {
+                                "_gen": "weightedOneOf",
+                                "choices": [
+                                    {
+                                        "weight": 2,
+                                        "value": {
+                                            "_gen": "uniformDistribution",
+                                            "bounds": [630720000000, 1262304000000]
+                                        }
+                                    },
+                                    {
+                                        "weight": 8,
+                                        "value": {
+                                            "_gen": "uniformDistribution",
+                                            "bounds": [1262304000000, 1893024000000]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "localConfigs": {
+                "maxEvents": 10
+            }
+        },
+        {
+            "topic": "shadowtraffic.customers",
+            "key": {
+                "customerId": {
+                    "_gen": "uuid"
+                }
+            },
+            "value": {
+                "name": {
+                    "_gen": "string",
+                    "expr": "#{Name.fullName}"
+                },
+                "address": {
+                    "_gen": "string",
+                    "expr": "#{Address.fullAddress}"
+                },
+                "registrationDate": {
+                    "_gen": "formatDateTime",
+                    "format": "yyyy-MM-dd",
+                    "ms": {
+                        "_gen": "subtract",
+                        "args": [
+                            {
+                                "_gen": "now"
+                            },
+                            {
+                                "_gen": "weightedOneOf",
+                                "choices": [
+                                    {
+                                        "weight": 2,
+                                        "value": {
+                                            "_gen": "uniformDistribution",
+                                            "bounds": [94694400000, 157766400000]
+                                        }
+                                    },
+                                    {
+                                        "weight": 8,
+                                        "value": {
+                                            "_gen": "uniformDistribution",
+                                            "bounds": [157766400000, 315532800000]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "localConfigs": {
+                "maxEvents": 250,
+                "maxEventsPerMinute": 5,
+                "eventDistribution": {
+                    "_gen": "weightedOneOf",
+                    "choices": [
+                        {
+                            "weight": 70,
+                            "value": "update"
+                        },
+                        {
+                            "weight": 30,
+                            "value": "new"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "topic": "shadowtraffic.orders",
+            "key": {
+                "orderId": {
+                    "_gen": "uuid"
+                }
+            },
+            "value": {
+                "customerId": {
+                    "_gen": "lookup",
+                    "topic": "shadowtraffic.customers",
+                    "path": ["key", "customerId"]
+                },
+                "storeId": {
+                    "_gen": "lookup",
+                    "topic": "shadowtraffic.stores",
+                    "path": ["key", "storeId"]
+                },
+                "productId": {
+                    "_gen": "lookup",
+                    "topic": "shadowtraffic.products",
+                    "path": ["key", "productId"]
+                },
+                "quantity": {
+                    "_gen": "uniformDistribution",
+                    "bounds": [1, 5]
+                },
+                "orderDate": {
+                    "_gen": "formatDateTime",
+                    "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+                    "ms": {
+                        "_gen": "now"
+                    }
+                }
+            },
+            "localConfigs": {
+                "maxEventsPerMinute": 10
+            }
+        }
+    ],
+    "connections": {
+        "kafka": {
+            "kind": "kafka",
+            "producerConfigs": {
+                "bootstrap.servers": "broker:29092",
+                "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+                "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+                "schema.registry.url": "http://schema-registry:8081"
+            }
+        }
+    }
+}

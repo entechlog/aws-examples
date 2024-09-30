@@ -1,0 +1,22 @@
+source: RDS_MYSQL_SOURCE
+target: S3_TARGET
+
+defaults:
+  # https://docs.slingdata.io/sling-cli/run/configuration/replication
+  mode: full-refresh
+  object: slingdata/{stream_schema}/{stream_table}/{YYYY}/{MM}/{DD}/{stream_table}_{run_timestamp}.csv
+
+  source_options:
+    empty_as_null: false   
+
+  target_options:
+    format: csv
+    file_max_bytes: 400000
+    column_casing: snake
+
+streams:
+  demo.*:
+  demo.datagen_custom_users:
+    disabled: true
+  demo.datagen_users:
+    disabled: true

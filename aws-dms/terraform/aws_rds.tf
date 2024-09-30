@@ -36,9 +36,26 @@ resource "aws_db_parameter_group" "rds_pg" {
   name   = "${local.resource_name_prefix}-rds-mysql8-pg"
   family = "mysql8.0"
 
+  # Set the sql_mode parameter
+  parameter {
+    name  = "sql_mode"
+    value = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION,PAD_CHAR_TO_FULL_LENGTH"
+  }
+
+  # Other parameters
   parameter {
     name  = "binlog_format"
     value = "ROW"
+  }
+
+  parameter {
+    name  = "binlog_row_image"
+    value = "FULL"
+  }
+
+  parameter {
+    name  = "binlog_row_metadata"
+    value = "FULL"
   }
 }
 

@@ -1,0 +1,9 @@
+RDS [icon: aws-rds]
+slingdata.io [icon: aws-command-line-interface]
+S3 Bucket [icon: aws-s3]
+Snowflake [icon: snowflake]
+
+// Connections
+RDS > slingdata.io
+slingdata.io > S3 Bucket
+S3 Bucket > Snowflake

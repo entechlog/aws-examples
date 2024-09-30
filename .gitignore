@@ -447,4 +447,8 @@ terraform.rc
 #Kafka
 mysql-secrets.json
 *secrets.properties
+license.env
+*.sh text eol=lf
 
+# Slingdata
+.sling.*

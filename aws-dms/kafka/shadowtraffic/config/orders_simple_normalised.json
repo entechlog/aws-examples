@@ -1,0 +1,74 @@
+{
+    "generators" : [ {
+      "topic" : "customers",
+      "value" : {
+        "customerId" : {
+          "_gen" : "uuid"
+        },
+        "name" : {
+          "_gen" : "string",
+          "expr" : "#{Name.full_name}"
+        },
+        "zone" : {
+          "_gen" : "weightedOneOf",
+          "choices" : [ {
+            "weight" : 20,
+            "value" : "zone 1"
+          }, {
+            "weight" : 40,
+            "value" : "zone 2"
+          }, {
+            "weight" : 10,
+            "value" : "zone 3"
+          } ]
+        },
+        "address" : {
+          "_gen" : "string",
+          "expr" : "#{Address.full_address}"
+        },
+        "membership" : {
+          "_gen" : "oneOf",
+          "choices" : [ "bronze", "silver", "gold" ]
+        }
+      }
+    }, {
+      "topic" : "orders",
+      "value" : {
+        "orderId" : {
+          "_gen" : "uuid"
+        },
+        "customerId" : {
+          "_gen" : "lookup",
+          "topic" : "customers",
+          "path" : [ "value", "customerId" ]
+        },
+        "orderDate" : {
+          "_gen" : "formatDateTime",
+          "ms" : {
+            "_gen" : "now"
+          },
+          "format" : "yyyy-MM-dd"
+        },
+        "cost" : {
+          "_gen" : "normalDistribution",
+          "mean" : 50,
+          "sd" : 20,
+          "decimals" : 2
+        },
+        "creditCardNumber" : {
+          "_gen" : "string",
+          "expr" : "#{Finance.credit_card}"
+        }
+      }
+    } ],
+    "connections" : {
+      "localKafka" : {
+        "kind" : "kafka",
+        "producerConfigs" : {
+          "bootstrap.servers" : "broker:29092",
+          "key.serializer" : "io.shadowtraffic.kafka.serdes.JsonSerializer",
+          "value.serializer" : "io.shadowtraffic.kafka.serdes.JsonSerializer"
+        }
+      }
+    }
+  }
