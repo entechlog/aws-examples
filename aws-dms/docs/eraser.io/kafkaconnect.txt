@@ -1,0 +1,15 @@
+RDS [icon: aws-rds]
+debezium source connector [icon: Kafka]
+kafka topic [icon: Kafka]
+s3 sink connector [icon: Kafka]
+snowflake sink connector [icon: kafka]
+S3 Bucket [icon: aws-s3]
+Snowflake [icon: snowflake]
+
+// Connections
+RDS > debezium source connector
+debezium source connector > kafka topic
+kafka topic > s3 sink connector
+s3 sink connector > S3 Bucket
+kafka topic >  snowflake sink connector
+snowflake sink connector > Snowflake

@@ -1,5 +1,4 @@
 ---
-version: '2'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -95,6 +94,7 @@ services:
       - ./connect/schemas/:/connect/schemas
       - ./connect/scripts/:/connect/scripts
       - ./connect/secrets/mysql-secrets.properties:/opt/confluent/secrets/mysql-secrets.properties
+      - ./connect/secrets/snowflake-secrets.properties:/opt/confluent/secrets/snowflake-secrets.properties
       - ./connect/scripts/create-datagen-source.sh:/connect/scripts/create-datagen-source.sh
       - ./connect/scripts/create-mysql-sink.sh:/connect/scripts/create-mysql-sink.sh
     command: 
@@ -106,6 +106,8 @@ services:
         confluent-hub install --no-prompt confluentinc/kafka-connect-datagen:latest
         confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
         confluent-hub install --no-prompt confluentinc/connect-transforms:latest
+        confluent-hub install --no-prompt debezium/debezium-connector-mysql:latest
+        confluent-hub install --no-prompt snowflakeinc/snowflake-kafka-connector:latest
         cd /usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib
         curl -k -SL "http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.11.tar.gz" | tar -xzf -
         #
@@ -127,7 +129,8 @@ services:
         /connect/scripts/create-datagen-source.sh
         sleep 5
         /connect/scripts/create-mysql-sink.sh
-        sleep infinity
+        # Keep the container running without any task
+        tail -f /dev/null
         
   control-center:
     image: confluentinc/cp-enterprise-control-center:6.1.1
@@ -154,9 +157,18 @@ services:
   kafkacat:
     image: confluentinc/cp-kafkacat:7.1.13
     container_name: kafkacat
-    entrypoint: 
-      - /bin/sh 
-      - -c 
-      - |
-        apk add jq; 
-        while [ 1 -eq 1 ];do sleep 60;done
+    entrypoint: tail -f /dev/null
+
+  shadowtraffic:
+  # watch 'docker exec shadowtraffic curl -s localhost:9400/metrics |grep events_sent'
+    image: shadowtraffic/shadowtraffic:latest
+    container_name: shadowtraffic
+    env_file:
+      - shadowtraffic/license.env
+    volumes:
+      - ./shadowtraffic/config:/shadowtraffic/config
+    command: --config /shadowtraffic/config/orders_stream_normalised.json
+    
+networks:
+  default:
+    driver: bridge

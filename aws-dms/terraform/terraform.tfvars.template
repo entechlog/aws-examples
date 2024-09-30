@@ -1,0 +1,5 @@
+required_env_code     = "dev"
+required_project_code = "entechlog"
+required_app_code     = "data"
+db_password           = "<a-strong-password>"
+remote_cidr_block     = "<your-cidr-block>"

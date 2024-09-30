@@ -1,0 +1,10 @@
+services:
+  slingdata:
+    image: slingdata/sling:latest
+    container_name: slingdata
+    env_file:
+      - .env
+    volumes:
+      - ./config:/config
+      - ./replications:/replications
+    command: run -r /replications/mysql_to_s3.yaml

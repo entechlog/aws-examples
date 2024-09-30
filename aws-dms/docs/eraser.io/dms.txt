@@ -1,0 +1,9 @@
+RDS [icon: aws-rds]
+DMS [icon: aws-dms]
+S3 Bucket [icon: aws-s3]
+Snowflake [icon: snowflake]
+
+// Connections
+RDS > DMS
+DMS > S3 Bucket
+S3 Bucket > Snowflake

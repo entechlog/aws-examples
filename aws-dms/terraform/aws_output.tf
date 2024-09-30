@@ -35,21 +35,3 @@ output "s3_details" {
     dms_bucket_name = module.dms_s3_bucket.aws_s3_bucket__name[0]
   }
 }
-
-# Outputs for Server-Based DMS
-output "dms_server_details" {
-  value = {
-    task_or_config_id = module.dms_replication_server.replication_task_or_config_id
-    source_endpoint   = module.dms_replication_server.source_endpoint_arn
-    target_endpoint   = module.dms_replication_server.target_endpoint_arn
-  }
-}
-
-# Outputs for Serverless DMS
-output "dms_serverless_details" {
-  value = {
-    task_or_config_id = module.dms_replication_serverless.replication_task_or_config_id
-    source_endpoint   = module.dms_replication_serverless.source_endpoint_arn
-    target_endpoint   = module.dms_replication_serverless.target_endpoint_arn
-  }
-}
