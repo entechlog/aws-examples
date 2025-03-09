@@ -9,7 +9,7 @@ resource "aws_route_table" "public" {
 
 /* Routing table for private subnets */
 resource "aws_route_table" "private" {
-  count = length(var.private_subnet_cidr_block)
+  count  = length(var.private_subnet_cidr_block)
   vpc_id = aws_vpc.vpc.id
 
   tags = merge(local.tags, {

@@ -13,13 +13,13 @@ resource "aws_dms_endpoint" "source" {
 resource "aws_dms_endpoint" "target" {
   count = var.target_engine_name == "s3" ? 0 : 1
 
-  endpoint_id             = "tgt-${var.target_engine_name}-${var.target_identifier}"
-  endpoint_type           = "target"
-  engine_name             = var.target_engine_name
-  username                = var.target_username
-  password                = var.target_password
-  server_name             = var.target_server_name
-  port                    = var.target_port
+  endpoint_id   = "tgt-${var.target_engine_name}-${var.target_identifier}"
+  endpoint_type = "target"
+  engine_name   = var.target_engine_name
+  username      = var.target_username
+  password      = var.target_password
+  server_name   = var.target_server_name
+  port          = var.target_port
 }
 
 # Define the target endpoint for S3
@@ -33,7 +33,7 @@ resource "aws_dms_s3_endpoint" "target_s3" {
   service_access_role_arn = var.target_service_access_role_arn
 
   # Data format and partitioning settings
-  data_format                = var.target_data_format
-  date_partition_enabled     = var.target_date_partition_enabled
-  date_partition_sequence    = var.target_partition_sequence
+  data_format             = var.target_data_format
+  date_partition_enabled  = var.target_date_partition_enabled
+  date_partition_sequence = var.target_partition_sequence
 }
