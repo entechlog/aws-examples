@@ -443,6 +443,7 @@ terraform.rc
 *.cert
 *.key
 *.ovpn
+*.p8
 
 #Kafka
 mysql-secrets.json
