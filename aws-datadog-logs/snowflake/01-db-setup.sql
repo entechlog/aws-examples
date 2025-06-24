@@ -1,0 +1,48 @@
+-- Switch to SYSADMIN role
+USE ROLE SYSADMIN;
+
+-- 1. Create database if not exists
+CREATE DATABASE IF NOT EXISTS DEV_ENTECHLOG_RAW_DB
+  COMMENT = 'Development database for Entechlog raw data';
+
+-- 2. Create the DATADOG schema in the database
+USE DATABASE DEV_ENTECHLOG_RAW_DB;
+CREATE SCHEMA IF NOT EXISTS DATADOG
+  COMMENT = 'Schema for Datadog logs and monitoring data';
+
+-- 3. Create warehouse following the standard (DATADOG not DBT)
+CREATE WAREHOUSE IF NOT EXISTS DEV_ENTECHLOG_DATADOG_WH_XS
+  WITH WAREHOUSE_SIZE = 'X-SMALL'
+  AUTO_SUSPEND = 30
+  AUTO_RESUME = TRUE
+  MIN_CLUSTER_COUNT = 1
+  MAX_CLUSTER_COUNT = 1
+  SCALING_POLICY = 'STANDARD'
+  COMMENT = 'Extra Small warehouse for Entechlog Datadog workloads';
+
+-- 4. Create service role following the standard (DATADOG not DBT)
+CREATE ROLE IF NOT EXISTS DEV_SVC_ENTECHLOG_SNOW_DATADOG_ROLE
+  COMMENT = 'Service role for Entechlog Snowflake Datadog operations';
+
+-- 5. Create a dedicated user for Firehose (consistent naming)
+CREATE USER IF NOT EXISTS "dev_svc_entechlog_snow_datadog_user"
+  DEFAULT_ROLE = 'DEV_SVC_ENTECHLOG_SNOW_DATADOG_ROLE'
+  DEFAULT_WAREHOUSE = 'DEV_ENTECHLOG_DATADOG_WH_XS'
+  DEFAULT_NAMESPACE = 'DEV_ENTECHLOG_RAW_DB.DATADOG'
+  COMMENT = 'Service user for AWS Kinesis Firehose to load Datadog logs';
+
+-- 6. Grant necessary privileges to the service role
+-- Database level privileges
+GRANT USAGE ON DATABASE DEV_ENTECHLOG_RAW_DB TO ROLE DEV_SVC_ENTECHLOG_SNOW_DATADOG_ROLE;
+
+-- Schema level privileges  
+GRANT USAGE ON SCHEMA DEV_ENTECHLOG_RAW_DB.DATADOG TO ROLE DEV_SVC_ENTECHLOG_SNOW_DATADOG_ROLE;
+GRANT CREATE TABLE ON SCHEMA DEV_ENTECHLOG_RAW_DB.DATADOG TO ROLE DEV_SVC_ENTECHLOG_SNOW_DATADOG_ROLE;
+GRANT CREATE VIEW ON SCHEMA DEV_ENTECHLOG_RAW_DB.DATADOG TO ROLE DEV_SVC_ENTECHLOG_SNOW_DATADOG_ROLE;
+
+-- Warehouse privileges
+GRANT USAGE ON WAREHOUSE DEV_ENTECHLOG_DATADOG_WH_XS TO ROLE DEV_SVC_ENTECHLOG_SNOW_DATADOG_ROLE;
+GRANT OPERATE ON WAREHOUSE DEV_ENTECHLOG_DATADOG_WH_XS TO ROLE DEV_SVC_ENTECHLOG_SNOW_DATADOG_ROLE;
+
+-- 7. Grant the role to the user (using the correct user name)
+GRANT ROLE DEV_SVC_ENTECHLOG_SNOW_DATADOG_ROLE TO USER "dev_svc_entechlog_snow_datadog_user";

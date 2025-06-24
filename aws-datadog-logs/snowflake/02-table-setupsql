@@ -1,0 +1,34 @@
+-- Create Table 
+
+CREATE TABLE IF NOT EXISTS DATADOG.<EVENT-NAME> (
+    -- Core identifiers
+    _id VARCHAR,
+    lambda_request_id VARCHAR,
+
+    -- Event metadata
+    event_name VARCHAR,
+    event_date DATE,
+    event_timestamp TIMESTAMP_NTZ,
+    processed_timestamp TIMESTAMP_NTZ,
+
+    -- Datadog core fields
+    date TIMESTAMP_NTZ,
+    host VARCHAR,
+    service VARCHAR,
+    source VARCHAR,
+    status VARCHAR,
+    message TEXT,
+
+    -- Pipeline metadata
+    pipeline VARCHAR,
+
+    -- Nested attributes
+    attributes VARIANT,
+
+    -- Tags
+    tags VARIANT
+)
+CLUSTER BY (event_date, event_name);
+
+-- Grant table privileges to the role
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE DATADOG.<EVENT-NAME> TO ROLE DEV_SVC_ENTECHLOG_SNOW_DATADOG_ROLE;

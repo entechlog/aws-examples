@@ -22,3 +22,33 @@ variable "resource_name" {
   description = "API resource name (typically same as the Lambda function name)"
   type        = string
 }
+
+variable "api_key_required" {
+  description = "Whether API key is required for requests"
+  type        = bool
+  default     = false
+}
+
+variable "throttle_rate_limit" {
+  description = "API Gateway throttle rate limit (requests per second)"
+  type        = number
+  default     = 10000
+}
+
+variable "throttle_burst_limit" {
+  description = "API Gateway throttle burst limit"
+  type        = number
+  default     = 5000
+}
+
+variable "quota_limit" {
+  description = "API Gateway quota limit"
+  type        = number
+  default     = 20000
+}
+
+variable "quota_period" {
+  description = "API Gateway quota period (DAY, WEEK, MONTH)"
+  type        = string
+  default     = "WEEK"
+}

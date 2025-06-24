@@ -13,11 +13,6 @@ variable "lambda_runtime" {
   type        = string
 }
 
-variable "snowflake_secret_arn" {
-  description = "ARN of the Secrets Manager secret for Snowflake credentials"
-  type        = string
-}
-
 variable "aws_region" {
   description = "AWS region for Lambda"
   type        = string
@@ -27,4 +22,11 @@ variable "aws_region" {
 variable "source_dir" {
   description = "Directory containing the Lambda source code"
   type        = string
+}
+
+# Add environment variables support
+variable "environment_variables" {
+  description = "Environment variables for the Lambda function"
+  type        = map(string)
+  default     = {}
 }
