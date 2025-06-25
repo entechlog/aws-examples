@@ -1,6 +1,7 @@
 - [Datadog to AWS Data Pipeline](#datadog-to-aws-data-pipeline)
   - [🏗️ Architecture](#️-architecture)
-    - [Pipeline Details](#pipeline-details)
+    - [S3 Pipeline](#s3-pipeline)
+    - [Snowflake Pipeline](#snowflake-pipeline)
   - [🚀 Features](#-features)
   - [📋 Prerequisites](#-prerequisites)
   - [🛠️ Setup](#️-setup)
@@ -13,8 +14,7 @@
     - [Test Lambda Functions Directly](#test-lambda-functions-directly)
     - [Test API Gateway Endpoints](#test-api-gateway-endpoints)
     - [Generate Test Logs](#generate-test-logs)
-  - [� Configuration](#-configuration)
-    - [Buffer Settings](#buffer-settings)
+  - [🔧 Configuration](#-configuration)
     - [Security](#security)
   - [📊 Monitoring](#-monitoring)
   - [🔍 Troubleshooting](#-troubleshooting)
@@ -30,6 +30,8 @@ A Terraform-managed infrastructure for streaming Datadog logs to AWS S3 and Snow
 
 ## 🏗️ Architecture
 
+### S3 Pipeline
+
 ```mermaid
 graph LR
     %% Datadog Source
@@ -37,42 +39,74 @@ graph LR
     
     %% API Gateway Layer
     API_S3[🚪 API Gateway<br/>S3 Endpoint<br/>+ API Key Auth]
-    API_SF[🚪 API Gateway<br/>Snowflake Endpoint<br/>+ API Key Auth]
     
     %% Lambda Processing Layer
-    LAMBDA_S3[⚡ Lambda<br/>S3 Processor<br/>Log Enrichment]
-    LAMBDA_SF[⚡ Lambda<br/>Snowflake Processor<br/>Log Enrichment]
+    LAMBDA_S3[⚡ Lambda<br/>Log Processor<br/>Data Enrichment]
     
     %% Firehose Streaming Layer
-    FH_S3[🌊 Firehose<br/>S3 Stream<br/>5MB/5min Buffer]
-    FH_SF[🌊 Firehose<br/>Snowflake Stream<br/>128MB/15min Buffer]
+    FH_S3[🌊 Kinesis Firehose<br/>S3 Stream<br/>Configurable Buffer]
     
-    %% Destinations
-    S3[🪣 AWS S3<br/>Data Lake<br/>Analytics Ready]
-    SF[🏔️ Snowflake<br/>Data Warehouse<br/>Auto Tables]
-    S3_BACKUP[🪣 S3 Backup<br/>Snowflake Backup]
+    %% Destination
+    S3[🪣 AWS S3<br/>Object Storage]
     
     %% Monitoring
-    CW[📊 CloudWatch<br/>Logs & Alarms]
-    SNS[📧 SNS<br/>Alerts]
+    CW[📊 CloudWatch<br/>Logs & Metrics]
+    SNS[📧 SNS<br/>Notifications]
     
     %% Main Flow - S3 Pipeline
-    DD -->|System Events| API_S3
+    DD -->|Log Events| API_S3
     API_S3 --> LAMBDA_S3
     LAMBDA_S3 --> FH_S3
     FH_S3 --> S3
     
+    %% Monitoring Connections
+    LAMBDA_S3 -.-> CW
+    FH_S3 -.-> CW
+    CW -.-> SNS
+    
+    %% Styling
+    classDef datadog fill:#632ca6,stroke:#fff,stroke-width:2px,color:#fff
+    classDef aws fill:#ff9900,stroke:#fff,stroke-width:2px,color:#fff
+    classDef monitoring fill:#87ceeb,stroke:#fff,stroke-width:2px,color:#000
+    
+    class DD datadog
+    class API_S3,LAMBDA_S3,FH_S3,S3 aws
+    class CW,SNS monitoring
+```
+
+### Snowflake Pipeline
+
+```mermaid
+graph LR
+    %% Datadog Source
+    DD[🐕 Datadog<br/>Log Forwarder]
+    
+    %% API Gateway Layer
+    API_SF[🚪 API Gateway<br/>Snowflake Endpoint<br/>+ API Key Auth]
+    
+    %% Lambda Processing Layer
+    LAMBDA_SF[⚡ Lambda<br/>Log Processor<br/>Data Enrichment]
+    
+    %% Firehose Streaming Layer
+    FH_SF[🌊 Kinesis Firehose<br/>Snowflake Stream<br/>Configurable Buffer]
+    
+    %% Destinations
+    SF[🏔️ Snowflake<br/>Data Warehouse]
+    S3_BACKUP[🪣 S3 Backup<br/>Error Handling]
+    
+    %% Monitoring
+    CW[📊 CloudWatch<br/>Logs & Metrics]
+    SNS[📧 SNS<br/>Notifications]
+    
     %% Main Flow - Snowflake Pipeline  
-    DD -->|System Events| API_SF
+    DD -->|Log Events| API_SF
     API_SF --> LAMBDA_SF
     LAMBDA_SF --> FH_SF
     FH_SF --> SF
     FH_SF --> S3_BACKUP
     
     %% Monitoring Connections
-    LAMBDA_S3 -.-> CW
     LAMBDA_SF -.-> CW
-    FH_S3 -.-> CW
     FH_SF -.-> CW
     CW -.-> SNS
     
@@ -83,45 +117,9 @@ graph LR
     classDef monitoring fill:#87ceeb,stroke:#fff,stroke-width:2px,color:#000
     
     class DD datadog
-    class API_S3,API_SF,LAMBDA_S3,LAMBDA_SF,FH_S3,FH_SF,S3,S3_BACKUP aws
+    class API_SF,LAMBDA_SF,FH_SF,S3_BACKUP aws
     class SF snowflake
     class CW,SNS monitoring
-```
-
-### Pipeline Details
-
-```mermaid
-graph TD
-    subgraph "🔄 Data Flow"
-        A[Datadog Logs] --> B{Pipeline Router}
-        B -->|Fast Analytics| C[S3 Pipeline]
-        B -->|Data Warehouse| D[Snowflake Pipeline]
-    end
-    
-    subgraph "📊 S3 Pipeline"
-        C --> E[5MB Buffer<br/>5min Timeout]
-        E --> F[S3 Storage<br/>Partitioned by Date]
-    end
-    
-    subgraph "🏔️ Snowflake Pipeline"  
-        D --> G[128MB Buffer<br/>15min Timeout]
-        G --> H[Snowflake Warehouse<br/>Auto Table Creation]
-        G --> I[S3 Backup<br/>Error Handling]
-    end
-    
-    subgraph "🔧 Infrastructure"
-        J[Terraform IaC<br/>Multi-Module Design]
-        K[API Key Authentication<br/>IAM Role Security]
-        L[CloudWatch Monitoring<br/>SNS Alerting]
-    end
-    
-    classDef s3 fill:#ff9900,stroke:#fff,stroke-width:2px,color:#fff
-    classDef snowflake fill:#29b5e8,stroke:#fff,stroke-width:2px,color:#fff
-    classDef infra fill:#90ee90,stroke:#fff,stroke-width:2px,color:#000
-    
-    class C,E,F,I s3
-    class D,G,H snowflake
-    class J,K,L infra
 ```
 
 ## 🚀 Features
@@ -174,6 +172,13 @@ cp terraform.tfvars.example terraform.tfvars
 # - Snowflake credentials  
 # - Alert email
 # - Buffer settings
+# Use below query to get the information for your Snowflake account
+# SELECT DISTINCT 
+# CURRENT_ORGANIZATION_NAME() as snowflake_organization_name, 
+# CURRENT_ACCOUNT_NAME() as snowflake_account_name, 
+# ACCOUNT_LOCATOR as account_identifier, 
+# REGION as region
+# from SNOWFLAKE.ORGANIZATION_USAGE.RATE_SHEET_DAILY;
 ```
 
 ### 4. Deploy Infrastructure
@@ -200,13 +205,6 @@ terraform output api_key_values
 ### Test Lambda Functions Directly
 
 ```bash
-# Test S3 pipeline
-aws lambda invoke \
-  --function-name "datadog-system-events-s3-processor" \
-  --payload '{"body": "{\"test\": \"message\", \"timestamp\": \"2025-01-15T10:00:00Z\"}"}' \
-  response.json && cat response.json
-
-# Test Snowflake pipeline  
 aws lambda invoke \
   --function-name "datadog-system-events-snowflake-processor" \
   --payload '{"body": "{\"test\": \"message\", \"timestamp\": \"2025-01-15T10:00:00Z\"}"}' \
@@ -217,17 +215,8 @@ aws lambda invoke \
 
 ```bash
 # Get URLs and keys from Terraform
-S3_URL=$(terraform output -json api_gateway_urls | jq -r '.system_events_s3')
-S3_KEY=$(terraform output -json api_key_values | jq -r '.system_events_s3')
-
 SNOWFLAKE_URL=$(terraform output -json api_gateway_urls | jq -r '.system_events_snowflake')  
 SNOWFLAKE_KEY=$(terraform output -json api_key_values | jq -r '.system_events_snowflake')
-
-# Test S3 endpoint
-curl -X POST "$S3_URL" \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: $S3_KEY" \
-  -d '{"test": "message", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)'"}'
 
 # Test Snowflake endpoint
 curl -X POST "$SNOWFLAKE_URL" \
@@ -245,11 +234,6 @@ python datadog_log_generator.py --dd-api-key $DD_API_KEY --total-logs 50 --rate 
 ```
 
 ## 🔧 Configuration
-
-### Buffer Settings
-
-- **S3 Pipeline**: 5MB / 5 minutes (faster delivery)
-- **Snowflake Pipeline**: 128MB / 15 minutes (cost optimized)
 
 ### Security
 

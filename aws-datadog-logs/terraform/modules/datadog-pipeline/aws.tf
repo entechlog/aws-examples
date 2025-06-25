@@ -108,6 +108,13 @@ resource "aws_lambda_function" "datadog_lambda" {
   tags = local.common_tags
 }
 
+resource "aws_cloudwatch_log_group" "lambda_logs" {
+  name              = "/aws/lambda/datadog-${local.normalized_event_name}-${var.destination_type}-processor"
+  retention_in_days = var.log_retention_days
+
+  tags = local.common_tags
+}
+
 # API Gateway for receiving Datadog logs
 module "datadog_api_gateway" {
   source = "../../../../aws-modules/api_gateway"

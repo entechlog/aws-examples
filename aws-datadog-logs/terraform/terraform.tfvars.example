@@ -1,0 +1,38 @@
+# Environment Configuration
+env_code   = "dev"
+aws_region = "us-east-1"
+
+# Project Configuration
+project_code = "entechlog"
+use_env_code = false
+
+# Alerts
+alert_email = "demo@example.com"
+
+# S3 Pipeline Buffer Settings
+s3_buffer_size     = 250   # MB
+s3_buffer_interval = 1800  # seconds (30 minutes)
+
+# Snowflake Pipeline Buffer Settings
+# Larger buffers are more cost-effective for Snowflake
+snowflake_buffer_size     = 250  # MB (Snowflake charges per file, so larger is better)
+snowflake_buffer_interval = 1800 # seconds (30 minutes)
+
+# Snowflake Configuration
+# SELECT DISTINCT 
+# CURRENT_ORGANIZATION_NAME() as snowflake_organization_name, 
+# CURRENT_ACCOUNT_NAME() as snowflake_account_name, 
+# ACCOUNT_LOCATOR as account_identifier, 
+# REGION as region
+# from SNOWFLAKE.ORGANIZATION_USAGE.RATE_SHEET_DAILY;
+snowflake_organization_name = ""
+snowflake_account_name      = ""
+snowflake_account_url       = "https://<account_identifier>.<region>.snowflakecomputing.com"
+snowflake_username          = ""
+snowflake_database          = ""
+snowflake_schema            = "DATADOG"
+snowflake_role              = ""
+
+snowflake_private_key            = ""
+snowflake_private_key_pem        = ""
+snowflake_private_key_passphrase = ""

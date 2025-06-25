@@ -103,3 +103,16 @@ variable "snowflake_private_key_passphrase" {
   default     = ""
   sensitive   = true
 }
+
+# CloudWatch log retention
+variable "log_retention_days" {
+  description = "CloudWatch log retention in days for Lambda and Firehose"
+  type        = number
+  default     = 7
+  validation {
+    condition = contains([
+      1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653
+    ], var.log_retention_days)
+    error_message = "Log retention must be one of the valid CloudWatch retention periods."
+  }
+}

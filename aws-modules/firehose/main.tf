@@ -71,7 +71,7 @@ resource "aws_iam_role_policy" "firehose_snowflake_policy" {
         Action = [
           "s3:AbortMultipartUpload",
           "s3:GetBucketLocation",
-          "s3:GetObject", 
+          "s3:GetObject",
           "s3:ListBucket",
           "s3:ListBucketMultipartUploads",
           "s3:PutObject"
@@ -146,22 +146,22 @@ resource "aws_kinesis_firehose_delivery_stream" "snowflake_delivery_stream" {
   destination = "snowflake"
 
   snowflake_configuration {
-    account_url  = var.snowflake_account_url
-    user         = var.snowflake_username
-    database     = var.snowflake_database
-    schema       = var.snowflake_schema
-    table        = var.snowflake_table
-    role_arn     = aws_iam_role.firehose_delivery_role.arn
-    
+    account_url = var.snowflake_account_url
+    user        = var.snowflake_username
+    database    = var.snowflake_database
+    schema      = var.snowflake_schema
+    table       = var.snowflake_table
+    role_arn    = aws_iam_role.firehose_delivery_role.arn
+
     # Use the private key directly from Secrets Manager (base64 format)
-    private_key  = var.snowflake_private_key
-    
+    private_key = var.snowflake_private_key
+
     # Optional passphrase for encrypted private keys
     key_passphrase = var.snowflake_private_key_passphrase != "" ? var.snowflake_private_key_passphrase : null
 
     # Snowflake role configuration
     snowflake_role_configuration {
-      enabled       = true
+      enabled        = true
       snowflake_role = var.snowflake_role
     }
 
@@ -175,13 +175,13 @@ resource "aws_kinesis_firehose_delivery_stream" "snowflake_delivery_stream" {
     # Required S3 backup configuration
     s3_backup_mode = "FailedDataOnly"
     s3_configuration {
-      role_arn           = aws_iam_role.firehose_delivery_role.arn
-      bucket_arn         = "arn:aws:s3:::${var.s3_bucket_name}"
-      prefix             = "snowflake-backup/"
+      role_arn            = aws_iam_role.firehose_delivery_role.arn
+      bucket_arn          = "arn:aws:s3:::${var.s3_bucket_name}"
+      prefix              = "snowflake-backup/"
       error_output_prefix = "snowflake-errors/"
-      buffering_size     = 5
-      buffering_interval = 300
-      compression_format = "GZIP"
+      buffering_size      = 5
+      buffering_interval  = 300
+      compression_format  = "GZIP"
 
       cloudwatch_logging_options {
         enabled         = true
