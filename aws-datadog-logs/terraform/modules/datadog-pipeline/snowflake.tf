@@ -29,122 +29,99 @@ resource "snowflake_table" "datadog_table" {
   schema   = var.snowflake_schema
   name     = local.table_name
 
-  # Table structure for Datadog logs - ALL UPPERCASE (Snowflake standard)
+  # Table structure
   column {
-    name    = "ID"
-    type    = "VARCHAR"
-    comment = "Unique identifier for the log entry"
+    name = "_ID"
+    type = "VARCHAR(16777216)"
   }
 
   column {
-    name    = "LAMBDA_REQUEST_ID"
-    type    = "VARCHAR"
-    comment = "AWS Lambda request ID"
+    name = "LAMBDA_REQUEST_ID"
+    type = "VARCHAR(16777216)"
   }
 
   column {
-    name    = "EVENT_NAME"
-    type    = "VARCHAR"
-    comment = "Event type name"
+    name = "EVENT_NAME"
+    type = "VARCHAR(16777216)"
   }
 
   column {
-    name    = "EVENT_DATE"
-    type    = "DATE"
-    comment = "Date of the event"
+    name = "EVENT_DATE"
+    type = "DATE"
   }
 
   column {
-    name    = "EVENT_TIMESTAMP"
-    type    = "TIMESTAMP_NTZ"
-    comment = "Original event timestamp"
+    name = "EVENT_TIMESTAMP"
+    type = "TIMESTAMP_NTZ(9)"
   }
 
   column {
-    name    = "PROCESSED_TIMESTAMP"
-    type    = "TIMESTAMP_NTZ"
-    comment = "Lambda processing timestamp"
-  }
-
-  # Datadog core fields
-  column {
-    name    = "DATE"
-    type    = "TIMESTAMP_NTZ"
-    comment = "Datadog log date"
+    name = "PROCESSED_TIMESTAMP"
+    type = "TIMESTAMP_NTZ(9)"
   }
 
   column {
-    name    = "HOST"
-    type    = "VARCHAR"
-    comment = "Source host"
+    name = "DATE"
+    type = "TIMESTAMP_NTZ(9)"
   }
 
   column {
-    name    = "SERVICE"
-    type    = "VARCHAR"
-    comment = "Service name"
+    name = "HOST"
+    type = "VARCHAR(16777216)"
   }
 
   column {
-    name    = "SOURCE"
-    type    = "VARCHAR"
-    comment = "Log source"
+    name = "SERVICE"
+    type = "VARCHAR(16777216)"
   }
 
   column {
-    name    = "STATUS"
-    type    = "VARCHAR"
-    comment = "Log status/level"
+    name = "SOURCE"
+    type = "VARCHAR(16777216)"
   }
 
   column {
-    name    = "MESSAGE"
-    type    = "TEXT"
-    comment = "Log message content"
-  }
-
-  # Pipeline metadata
-  column {
-    name    = "PIPELINE"
-    type    = "VARCHAR"
-    comment = "Processing pipeline identifier"
+    name = "STATUS"
+    type = "VARCHAR(16777216)"
   }
 
   column {
-    name    = "DESTINATION_TYPE"
-    type    = "VARCHAR"
-    comment = "Destination type (s3/snowflake)"
+    name = "MESSAGE"
+    type = "VARCHAR(16777216)"
   }
 
   column {
-    name    = "TABLE_NAME"
-    type    = "VARCHAR"
-    comment = "Target table name"
+    name = "PIPELINE"
+    type = "VARCHAR(16777216)"
   }
 
   column {
-    name    = "BATCH_ID"
-    type    = "VARCHAR"
-    comment = "Processing batch identifier"
-  }
-
-  # Nested data as JSON/VARIANT
-  column {
-    name    = "ATTRIBUTES"
-    type    = "VARIANT"
-    comment = "Datadog log attributes (JSON)"
+    name = "ATTRIBUTES"
+    type = "VARIANT"
   }
 
   column {
-    name    = "TAGS"
-    type    = "VARIANT"
-    comment = "Datadog log tags (JSON)"
+    name = "TAGS"
+    type = "VARIANT"
   }
 
-  # Clustering for better performance - NOW MATCHES COLUMN NAMES
   cluster_by = ["EVENT_DATE", "EVENT_NAME"]
 
   comment = "Datadog logs for ${local.normalized_event_name} events"
+}
+
+resource "snowflake_grant_privileges_to_account_role" "table_grants" {
+  count = var.destination_type == "snowflake" ? 1 : 0
+
+  privileges        = ["SELECT", "INSERT", "UPDATE", "DELETE"]
+  account_role_name = var.snowflake_role
+
+  on_schema_object {
+    object_type = "TABLE"
+    object_name = "\"${var.snowflake_database}\".\"${var.snowflake_schema}\".\"${local.table_name}\""
+  }
+
+  depends_on = [snowflake_table.datadog_table]
 }
 
 # Snowflake table outputs

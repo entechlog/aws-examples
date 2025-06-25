@@ -2,7 +2,7 @@
 locals {
   # Define all your pipeline modules here
   all_pipelines = {
-    "system_events_s3"        = module.user_events_s3_pipeline
+    # "system_events_s3"        = module.user_events_s3_pipeline
     "system_events_snowflake" = module.system_events_snowflake_pipeline
   }
 }
